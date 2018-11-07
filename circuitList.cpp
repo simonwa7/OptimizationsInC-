@@ -6,22 +6,23 @@ CircuitList::CircuitList(){
     this->numCNOT = 0;
     this->optimizedLength = 0;
     this->optimizedNumCNOT = 0;
-    this->start = NULL;
-    this->last = NULL;
+    this->maxQubit = -1;
     
     return;
 }
 
 CircuitList::~CircuitList(){
 // Destructor for CircuitList. Deletes all nodes still left in the circuit
-    Gate* current = this->start;
-    
-    while(current != NULL){
-        Gate* previous = current;
-        current = current->next;
-        delete previous;
+    for(unsigned int i=this->maxQubit; i >= 0; i--){
+        Gate* current = circuit[i]->head;
+        
+        while(current != NULL){
+            Gate* previous = current;
+            current = current->next;
+            delete previous;
+        }
     }
-    
+
     return;
 }
 
@@ -35,24 +36,34 @@ void CircuitList::add(Gate gate){
     Gate* newGate = new Gate;
     newGate->gateType = gate.gateType;
     newGate->coefficient = gate.coefficient;
-    newGate->controlQubit = gate.controlQubit;
-    newGate->targetQubit = gate.targetQubit;
+    // newGate->controlQubit = gate.controlQubit;
+    // newGate->targetQubit = gate.targetQubit;
+    newGate->target = NULL;
     newGate->next = NULL;
     newGate->before = NULL;
-    
-    // Update start if first node
-    if(this->start == NULL){
-        this->start = newGate;
+
+    while((gate.controlQubit > this->maxQubit) or (gate.targetQubit > this->maxQubit)){
+        QubitList* newQubit = new QubitList;
+        newQubit->head = NULL;
+        newQubit->tail = NULL;
+        circuit.push_back(newQubit);
+        this->maxQubit++;
     }
     
-    // Update previous "last" gate if one exists
-    if(this->last != NULL){
-        this->last->next = newGate;
-        newGate->before = this->last;
-    }
+    QubitList start = circuit[gate.targetQubit];
+    // // Update start if first node
+    // if(this->start == NULL){
+    //     this->start = newGate;
+    // }
     
-    // Update "last" gate
-    this->last = newGate;
+    // // Update previous "last" gate if one exists
+    // if(this->last != NULL){
+    //     this->last->next = newGate;
+    //     newGate->before = this->last;
+    // }
+    
+    // // Update "last" gate
+    // this->last = newGate;
     
     return;
 }

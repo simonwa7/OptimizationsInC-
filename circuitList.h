@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <cstdlib>
 
 using namespace std;
@@ -39,55 +40,59 @@ const std::string GATETYPE[] = {"H", "CNOT", "Rx", "Rz"};
 // Declaration of the Gate object which also acts as the Node in a doubly 
 //		linked list.
 struct Gate{
-    unsigned int gateType;
-    long long coefficient;
-    int controlQubit;
-    int targetQubit;
+    unsigned short int gateType;
+    double coefficient;
+    Gate* target;
     Gate* next;
     Gate* before;
 };	
+
+struct QubitList{
+    Gate* head;
+    Gate* tail;
+};
 
 class CircuitList{
     public: 
         CircuitList();
         ~CircuitList();
         
-        unsigned long long getLength();
-        unsigned long long getNumCNOT();
-        unsigned long long getOptimizedLength();
-        unsigned long long getOptimizedNumCNOT();
+        // unsigned long long getLength();
+        // unsigned long long getNumCNOT();
+        // unsigned long long getOptimizedLength();
+        // unsigned long long getOptimizedNumCNOT();
         
-        void add(Gate newGate);
-        void addAndOptimize(Gate newGate);
-        void optimize();
+        // void add(Gate newGate);
+        // void addAndOptimize(Gate newGate);
+        // void optimize();
         
-        void clear();
-        void print();
+        // void clear();
+        // void print();
         
-        //Unneccessary 
-        void printReverse();
-        void printUpTo(unsigned int numGates);
-        void loop();
-        void loopReverse();
-        void recount();
+        // //Unneccessary 
+        // void printReverse();
+        // void printUpTo(unsigned int numGates);
+        // void loop();
+        // void loopReverse();
+        // void recount();
     
     private:
         unsigned long long length;
         unsigned long long numCNOT;
         unsigned long long optimizedLength;
         unsigned long long optimizedNumCNOT;
-        Gate* start;
-        Gate* last;
+        short int maxQubit;
+        std::vector<QubitList> circuit;
         
-        bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
-        bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
-        bool ifDuplicateQubits(int c1, int t1, int c2, int t2);
-        void removeGate(Gate* gate);
+        // bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
+        // bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
+        // bool ifDuplicateQubits(int c1, int t1, int c2, int t2);
+        // void removeGate(Gate* gate);
         
-        void cancelGates(Gate* currentGate, Gate* nextGate);
-        bool cancelNext(Gate gate);
-        void removeNext(Gate gate, Gate* nextGate);
-        void cancelDuplicates();
+        // void cancelGates(Gate* currentGate, Gate* nextGate);
+        // bool cancelNext(Gate gate);
+        // void removeNext(Gate gate, Gate* nextGate);
+        // void cancelDuplicates();
 
 };
 
