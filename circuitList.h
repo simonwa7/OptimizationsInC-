@@ -62,7 +62,7 @@ class CircuitList{
         // unsigned long long getOptimizedLength();
         // unsigned long long getOptimizedNumCNOT();
         
-        // void add(Gate newGate);
+        void add(Gate newGate, int target, int control);
         // void addAndOptimize(Gate newGate);
         // void optimize();
         

@@ -80,61 +80,62 @@ def main():
         
     start = time.time()
     for line in circuit:
-        qcircuit.addAndOptimizeGate(line)
+        qcircuit.addGate(line);
+        # qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
         
-    print("Gate numbers prior to optimization:")   
-    print("Total Gates: ")
-    gate_count = qcircuit.get("Number of gates")
-    print(gate_count)
-    print("CNOT Gates: ")
-    CNOT_count = qcircuit.get("Number of CNOT gates")
-    print(CNOT_count)
+    # print("Gate numbers prior to optimization:")   
+    # print("Total Gates: ")
+    # gate_count = qcircuit.get("Number of gates")
+    # print(gate_count)
+    # print("CNOT Gates: ")
+    # CNOT_count = qcircuit.get("Number of CNOT gates")
+    # print(CNOT_count)
         
-    start = time.time()
-    qcircuit.optimize("circuit")
-    time_to_optimize = time.time()-start
+    # start = time.time()
+    # qcircuit.optimize("circuit")
+    # time_to_optimize = time.time()-start
         
-    print("\nGate numbers after optimization:")  
-    print("Total Gates: ")
-    optimized_gate_count = qcircuit.get("Optimized Number of gates")
-    print(optimized_gate_count)
-    print("CNOT Gates: ")
-    optimized_CNOT_count = qcircuit.get("Optimized Number of CNOT gates")
-    print(optimized_CNOT_count)
+    # print("\nGate numbers after optimization:")  
+    # print("Total Gates: ")
+    # optimized_gate_count = qcircuit.get("Optimized Number of gates")
+    # print(optimized_gate_count)
+    # print("CNOT Gates: ")
+    # optimized_CNOT_count = qcircuit.get("Optimized Number of CNOT gates")
+    # print(optimized_CNOT_count)
     
-    qcircuit.clear("circuit")
+    # qcircuit.clear("circuit")
     
-    print("\nTIMINGS")
+    # print("\nTIMINGS")
     
-    if(mapping == "BK"):
-        print("BRAVYI-KITAEV")
-        print("Time for OpenFermion Generation of BK Mapping: {}".format(time_to_generate))
-        print("Time for Looping of BK Mapping: {}".format(time_to_loop))
-        print("Time for Optimization of BK Mapping: {}".format(time_to_optimize))
-    elif(mapping == "JW"):
-        print("JORDAN-WIGNER")
-        print("Time for OpenFermion Generation of JW Mapping: {}".format(time_to_generate))
-        print("Time for Looping of JW Mapping: {}".format(time_to_loop))
-        print("Time for Optimization of JW Mapping: {}".format(time_to_optimize))
+    # if(mapping == "BK"):
+    #     print("BRAVYI-KITAEV")
+    #     print("Time for OpenFermion Generation of BK Mapping: {}".format(time_to_generate))
+    #     print("Time for Looping of BK Mapping: {}".format(time_to_loop))
+    #     print("Time for Optimization of BK Mapping: {}".format(time_to_optimize))
+    # elif(mapping == "JW"):
+    #     print("JORDAN-WIGNER")
+    #     print("Time for OpenFermion Generation of JW Mapping: {}".format(time_to_generate))
+    #     print("Time for Looping of JW Mapping: {}".format(time_to_loop))
+    #     print("Time for Optimization of JW Mapping: {}".format(time_to_optimize))
         
         
-    name = name.replace("_", " ")
-    data = getMoleculeData(name, geometry, basis, multiplicity, charge)
-    name = name.replace(" ", "_")
+    # name = name.replace("_", " ")
+    # data = getMoleculeData(name, geometry, basis, multiplicity, charge)
+    # name = name.replace(" ", "_")
 
-    recorded_data = open('datav2.txt', "a") 
-    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}\n"
-                     .format(name, mapping, data[0], 
-                             basis, multiplicity, charge, 
-                             data[1], 
-                             data[2],
-                             gate_count, CNOT_count, 
-                             optimized_gate_count, optimized_CNOT_count,
-                             time_to_generate, time_to_loop,
-                             time_to_optimize)
-                     )
+    # recorded_data = open('datav2.txt', "a") 
+    # recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}\n"
+    #                  .format(name, mapping, data[0], 
+    #                          basis, multiplicity, charge, 
+    #                          data[1], 
+    #                          data[2],
+    #                          gate_count, CNOT_count, 
+    #                          optimized_gate_count, optimized_CNOT_count,
+    #                          time_to_generate, time_to_loop,
+    #                          time_to_optimize)
+    #                  )
                      
-    recorded_data.close();
+    # recorded_data.close();
     
 main()
