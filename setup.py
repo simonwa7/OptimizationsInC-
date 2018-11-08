@@ -2,7 +2,7 @@ from distutils.core import setup, Extension
 import sysconfig
 
 extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
-extra_compile_args += ["-std=c++11", "-Wall", "-Wextra", "-stdlib=libc++"]
+extra_compile_args += ["-std=c++11", "-Wall", "-Wextra"]
 
 module1 = Extension('qcircuit',
                     include_dirs = [],
