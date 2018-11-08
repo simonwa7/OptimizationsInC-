@@ -42,7 +42,7 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
     return Py_BuildValue("i", sts);
 }
 
-// static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
+static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
 //     const char* msg;
 //     int sts = 1;
     
@@ -63,9 +63,9 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 //     CIRCUIT -> addAndOptimize(gate);
 
 //     return Py_BuildValue("i", sts);
-// }
+}
 
-// static PyObject* qcircuit_show(PyObject* self, PyObject *args){
+static PyObject* qcircuit_show(PyObject* self, PyObject *args){
 //     const char* msg;
 //     int sts = 1;
     
@@ -94,9 +94,9 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 //     }
 
 //     return Py_BuildValue("i", sts);
-// }
+}
 
-// static PyObject* qcircuit_optimize(PyObject* self, PyObject *args){
+static PyObject* qcircuit_optimize(PyObject* self, PyObject *args){
 //     const char* msg;
 //     int sts = 1;
     
@@ -120,9 +120,9 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 //     CIRCUIT -> optimize();
 
 //     return Py_BuildValue("i", sts);
-// }
+}
 
-// static PyObject* qcircuit_clear(PyObject* self, PyObject *args){
+static PyObject* qcircuit_clear(PyObject* self, PyObject *args){
 //     const char* msg;
 //     int sts = 1;
     
@@ -146,9 +146,9 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 //     CIRCUIT -> clear();
 
 //     return Py_BuildValue("i", sts);
-// }
+}
 
-// static PyObject* qcircuit_get(PyObject* self, PyObject *args){
+static PyObject* qcircuit_get(PyObject* self, PyObject *args){
 //     const char* msg;
 //     unsigned long long value = 0;
     
@@ -177,15 +177,15 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 
 //     //return unsigned py long long
 //     return Py_BuildValue("K", value);
-// }
+}
 
 static PyMethodDef qcircuit_methods[] = {
     {"addGate", qcircuit_addGate, METH_VARARGS, "Add gates to a quantum circuit in C++"},
-    // {"addAndOptimizeGate", qcircuit_addAndOptimizeGate, METH_VARARGS, "Add gates to a quantum circuit - if they don't cancel - in C++"},
-    // {"show", qcircuit_show, METH_VARARGS, "Print the current state of the quantum circuit"},
-    // {"optimize", qcircuit_optimize, METH_VARARGS, "Optimize the current quantum circuit with gate cancellations"},
-    // {"clear", qcircuit_clear, METH_VARARGS, "Clear the current quantum circuit"},
-    // {"get", qcircuit_get, METH_VARARGS, "Get gate numbers for current quantum circuit"},
+    {"addAndOptimizeGate", qcircuit_addAndOptimizeGate, METH_VARARGS, "Add gates to a quantum circuit - if they don't cancel - in C++"},
+    {"show", qcircuit_show, METH_VARARGS, "Print the current state of the quantum circuit"},
+    {"optimize", qcircuit_optimize, METH_VARARGS, "Optimize the current quantum circuit with gate cancellations"},
+    {"clear", qcircuit_clear, METH_VARARGS, "Clear the current quantum circuit"},
+    {"get", qcircuit_get, METH_VARARGS, "Get gate numbers for current quantum circuit"},
     {NULL, NULL, 0, NULL}
 };
 
