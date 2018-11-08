@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include "circuitList.h"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -252,6 +253,7 @@ void getCoefficient(string line, int i, long long result[]){
         untypedCoefficient += '0';
     }
     untypedCoefficient.erase(digit, 1);
-    result[0] = std::stoll(untypedCoefficient);
+    const char *cstr = untypedCoefficient.c_str();
+    result[0] = atof(cstr);
     
 }

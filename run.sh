@@ -1,10 +1,6 @@
-#!/bin/bash 
-#SBATCH --partition=batch 
-#SBATCH --output=slurm-numbers.%N.%j.out
-
-module load anaconda/2 
 python setup.py build
 python setup.py install --user
+python main.py Helium 1 0 BK He 0 0 0
 
 
 #python main.py name pubchem multiplicity charge mapping
