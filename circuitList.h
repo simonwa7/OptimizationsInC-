@@ -42,7 +42,9 @@ const std::string GATETYPE[] = {"H", "CNOT", "Rx", "Rz"};
 struct Gate{
     unsigned short int gateType;
     double coefficient;
-    Gate* target;
+    int targetQubit;
+    int controlQubit;
+    Gate* lastControl;
     Gate* next;
     Gate* before;
 };	
@@ -56,43 +58,17 @@ class CircuitList{
     public: 
         CircuitList();
         ~CircuitList();
+        void add(Gate newGate);
+        void print();
         
-        // unsigned long long getLength();
-        // unsigned long long getNumCNOT();
-        // unsigned long long getOptimizedLength();
-        // unsigned long long getOptimizedNumCNOT();
-        
-        void add(Gate newGate, int target, int control);
-        // void addAndOptimize(Gate newGate);
-        // void optimize();
-        
-        // void clear();
-        // void print();
-        
-        // //Unneccessary 
-        // void printReverse();
-        // void printUpTo(unsigned int numGates);
-        // void loop();
-        // void loopReverse();
-        // void recount();
     
     private:
-        unsigned long long length;
-        unsigned long long numCNOT;
-        unsigned long long optimizedLength;
-        unsigned long long optimizedNumCNOT;
         short int maxQubit;
-        std::vector<QubitList> circuit;
-        
-        // bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
-        // bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
-        // bool ifDuplicateQubits(int c1, int t1, int c2, int t2);
-        // void removeGate(Gate* gate);
-        
-        // void cancelGates(Gate* currentGate, Gate* nextGate);
-        // bool cancelNext(Gate gate);
-        // void removeNext(Gate gate, Gate* nextGate);
-        // void cancelDuplicates();
+        std::vector<QubitList*> circuit;
+
+        void addQubits(int target, int control);
+        void printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*> &currents);
+        Gate* getHead(Gate* current);
 
 };
 

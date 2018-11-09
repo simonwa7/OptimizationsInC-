@@ -8,13 +8,7 @@ using namespace std;
 
 static PyObject *qcircuitError;
 
-struct GateObject{
-    Gate gate;
-    int target;
-    int control;
-};
-
-GateObject lineToGate(string line);
+Gate lineToGate(string line);
 double getCoefficient(string line, int &i);
 
 CircuitList* CIRCUIT = new CircuitList;
@@ -36,8 +30,8 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
     
     sts = 0;
 
-    GateObject gate = lineToGate(line);
-    CIRCUIT -> add(gate.gate, gate.target, gate.control);
+    Gate gate = lineToGate(line);
+    CIRCUIT -> add(gate);
 
     return Py_BuildValue("i", sts);
 }
@@ -66,34 +60,34 @@ static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
 }
 
 static PyObject* qcircuit_show(PyObject* self, PyObject *args){
-//     const char* msg;
-//     int sts = 1;
+    const char* msg;
+    int sts = 1;
     
-//     if(!PyArg_ParseTuple(args, "s", &msg)){
-//         return NULL;
-//     }
+    if(!PyArg_ParseTuple(args, "s", &msg)){
+        return NULL;
+    }
     
-//     std::string command = msg;
+    std::string command = msg;
     
-//     if(command == "circuit"){
-//         CIRCUIT -> print();
-//         sts = 0;
+    if(command == "circuit"){
+        CIRCUIT -> print();
+        sts = 0;
 //     }else if(command == "Number of gates"){
 //         cout << CIRCUIT -> getLength() << "\n";
 //         sts = 0;
 //     }else if(command == "Number of CNOT gates"){
 //         cout << CIRCUIT -> getNumCNOT() << "\n";
 //         sts = 0;
-//     }else{
-//         string error = "There was an exception raised while trying to use the ";
-//         error += "'show' fucntion.\n";
-//         error += "Did not understand value of: " + command;
-//         const char* char_error = error.c_str();
-//         PyErr_SetString(qcircuitError, char_error);
-//         return NULL;
-//     }
+    }else{
+        string error = "There was an exception raised while trying to use the ";
+        error += "'show' fucntion.\n";
+        error += "Did not understand value of: " + command;
+        const char* char_error = error.c_str();
+        PyErr_SetString(qcircuitError, char_error);
+        return NULL;
+    }
 
-//     return Py_BuildValue("i", sts);
+    return Py_BuildValue("i", sts);
 }
 
 static PyObject* qcircuit_optimize(PyObject* self, PyObject *args){
@@ -201,12 +195,12 @@ PyMODINIT_FUNC initqcircuit(void){
     PyModule_AddObject(m, "error", qcircuitError); 
 }
 /* NEEEEEED TO MODIFY GATE STRUCT*/
-GateObject lineToGate(string line){ 
-    GateObject obj; 
-    obj.gate.gateType = 4;
-    obj.target = -1;
-    obj.control = -1; 
-    obj.gate.coefficient = 0; 
+Gate lineToGate(string line){ 
+    Gate obj; 
+    obj.gateType = 4;
+    obj.targetQubit = -1;
+    obj.controlQubit = -1; 
+    obj.coefficient = 0; 
 
     string gateTypeString = ""; 
     
@@ -218,23 +212,23 @@ GateObject lineToGate(string line){
     ++i; 
 
     if(gateTypeString == "H"){ 
-        obj.gate.gateType = 0; 
-        obj.target = line[i]-48;
+        obj.gateType = 0; 
+        obj.targetQubit = line[i]-48;
     }else if(gateTypeString == "CNOT"){ 
-        obj.gate.gateType = 1; 
-        obj.control = line[i]-48;
-        obj.target = line[i+2]-48;
+        obj.gateType = 1; 
+        obj.controlQubit = line[i]-48;
+        obj.targetQubit = line[i+2]-48;
     }else{ 
         if(gateTypeString == "Rx"){ 
-            obj.gate.gateType = 2; 
+            obj.gateType = 2; 
         }else if(gateTypeString == "Rz"){ 
-            obj.gate.gateType = 3; 
+            obj.gateType = 3; 
         }else{ 
             cout << "Trouble identifying gate type" << '\n'; 
         } 
 
-        obj.gate.coefficient = getCoefficient(line, i);
-        obj.target = line[i+1]-48; 
+        obj.coefficient = getCoefficient(line, i);
+        obj.targetQubit = line[i+1]-48; 
     } 
     return obj; 
 }

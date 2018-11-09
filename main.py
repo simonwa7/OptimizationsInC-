@@ -80,10 +80,20 @@ def main():
         
     start = time.time()
     for line in circuit:
+        print(line);
+        print("In Circuit: ")
         qcircuit.addGate(line);
+        print("Out of Circuit: ")
+        print
         # qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
+
+    print("OpenFermion Circuit:")
+    circuit = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
+    for line in circuit:
+        print(line)
         
+    # qcircuit.show("circuit")
     # print("Gate numbers prior to optimization:")   
     # print("Total Gates: ")
     # gate_count = qcircuit.get("Number of gates")
