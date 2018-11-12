@@ -15,13 +15,13 @@ int main(){
 
 	if(qasm.is_open()){
 		while(getline(qasm, line)){
-			cout << line << endl;
+			// cout << line << endl;
 			Gate gate = lineToGate(line);
 			circuit->add(gate);
 		}
 	}
 
-	circuit->print();
+	// circuit->print();
 
 	delete circuit;
 
