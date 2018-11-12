@@ -88,6 +88,8 @@ def main():
         # qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
 
+    qcircuit.show("circuit");
+
     print("OpenFermion Circuit:")
     circuit = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
     for line in circuit:

@@ -69,10 +69,6 @@ class CircuitList{
         void addQubits(int target, int control);
         
         void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
-
-        void printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*> &currents);
-        Gate* getHead(Gate* current);
-
 };
 
 #endif

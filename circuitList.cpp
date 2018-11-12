@@ -57,19 +57,19 @@ void CircuitList::add(Gate gate){
 
     // Update start if first node
     if(qubit->head == NULL){
-        cout << "updated head" << endl;
+        // cout << "updated head" << endl;
         qubit->head = newGate;
     }
     
     // Update previous "last" gate if one exists
     if(qubit->tail != NULL){
-        cout << "updated previous tail" << endl;
+        // cout << "updated previous tail" << endl;
         qubit->tail->next = newGate;
         newGate->before = qubit->tail;
     }
     
     // Update "tail" gate
-    cout << "updated tail" << endl;
+    // cout << "updated tail" << endl;
     qubit->tail = newGate;
 
     if(gate.gateType == 1){
@@ -86,15 +86,15 @@ void CircuitList::add(Gate gate){
 
         newGate->lastControl = this->circuit[gate.controlQubit]->tail; 
     }
-    cout << qubit->head->gateType << endl;
-    print();
+    // cout << qubit->head->gateType << endl;
+    // print();
     return;
 }
 
 void CircuitList::addQubits(int target, int control){    
 
     while((control > this->maxQubit) or (target > this->maxQubit)){
-        cout << "Adding qubit: " << this->maxQubit+1 << endl;
+        // cout << "Adding qubit: " << this->maxQubit+1 << endl;
         QubitList* newQubit = new QubitList;
         newQubit->head = NULL;
         newQubit->tail = NULL;
@@ -110,13 +110,13 @@ void CircuitList::print(){
     Return: void
     Time Complexity: O(g)
 */
-    cout << "entered print" << endl;
+    // cout << "entered print" << endl;
     // This vector contains pointers to the next gate that needs to be
     // printed for each qubit
     vector<Gate *> currents;
     for(int i=0; i<=this->maxQubit; i++){
         if(this->circuit[i]->head == NULL){
-            cout << "head for qubit: " << i << " is empty" << endl;
+            // cout << "head for qubit: " << i << " is empty" << endl;
         }
         currents.push_back(this->circuit[i]->head);
     }
@@ -197,50 +197,3 @@ void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
     // update other list's next gate
     currents[CNOT->controlQubit] = current->next;
 }
-
-
-
-void CircuitList::printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*> &currents){
-    // cout << "Entered printTo" << endl;
-
-    while(current != here){
-        if(current->gateType == 5){
-            printFromCurrentToHere(currents[current->controlQubit], current->lastControl, currents);
-        }else if(current->gateType != 1){
-            // cout << "Entered second while" << endl;
-            std::cout << GATETYPE[current->gateType] << ' ';
-            
-            if(current->coefficient != 0){
-                std::cout << current->coefficient << ' ';
-            }
-            
-            std::cout << current->targetQubit << ' ';
-            
-            std::cout << "\n";
-            
-            current = current->next;
-
-        }else{
-            // cout << "Entered if" << endl;
-            printFromCurrentToHere(currents[current->controlQubit], current->lastControl, currents);
-            std::cout << "CNOT " << current->controlQubit << " " <<
-                 current->targetQubit << endl;
-            current = current->next;
-            // currents[current->controlQubit] = currents[current->controlQubit]->next;
-        }
-    }
-}
-
-
-
-// Gate* CircuitList::getHead(Gate* current){
-//     if(current != NULL){
-//         Gate* prev = current->before;
-//         while(prev != NULL){
-//             current = current->before;
-//             prev = current->before;
-//         }
-//         return current;
-//     }
-//     return NULL;
-// }
