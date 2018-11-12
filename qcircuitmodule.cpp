@@ -202,10 +202,12 @@ Gate lineToGate(string line){
     obj.controlQubit = -1; 
     obj.coefficient = 0; 
     obj.lastControl = NULL;
+    obj.next = NULL;
+    obj.before = NULL;
 
     string gateTypeString = ""; 
     
-    int i = 0; 
+    unsigned int i = 0; 
     while(line[i] != ' '){ 
         gateTypeString += line[i]; 
         ++i; 
@@ -214,11 +216,26 @@ Gate lineToGate(string line){
 
     if(gateTypeString == "H"){ 
         obj.gateType = 0; 
-        obj.targetQubit = line[i]-48;
+        string qubit = "";
+        while(i < line.length()){
+            qubit += line[i];
+            ++i;
+        }
+        obj.targetQubit = stoi(qubit);
     }else if(gateTypeString == "CNOT"){ 
         obj.gateType = 1; 
-        obj.controlQubit = line[i]-48;
-        obj.targetQubit = line[i+2]-48;
+        string qubit = "";
+        while(line[i] != ' '){
+            qubit += line[i];
+            ++i;
+        }
+        obj.controlQubit = stoi(qubit);
+        qubit = "";
+        while(i < line.length()){
+            qubit += line[i];
+            ++i;
+        }
+        obj.targetQubit = stoi(qubit);
     }else{ 
         if(gateTypeString == "Rx"){ 
             obj.gateType = 2; 
@@ -229,7 +246,12 @@ Gate lineToGate(string line){
         } 
 
         obj.coefficient = getCoefficient(line, i);
-        obj.targetQubit = line[i+1]-48; 
+        string qubit = "";
+        while(i < line.length()){
+            qubit += line[i];
+            ++i;
+        }
+        obj.targetQubit = stoi(qubit);
     } 
     return obj; 
 }
