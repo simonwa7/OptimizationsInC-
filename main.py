@@ -95,7 +95,7 @@ def main():
     for line in circuit:
         print(line)
         
-    # qcircuit.show("circuit")
+    # qcircuit.show("circuit")  
     # print("Gate numbers prior to optimization:")   
     # print("Total Gates: ")
     # gate_count = qcircuit.get("Number of gates")
@@ -150,4 +150,23 @@ def main():
                      
     # recorded_data.close();
     
-main()
+# main()
+
+
+
+
+
+def main():
+    # circuit = file.open("qasm.txt", "r")
+    # for line in circuit:
+    #     qcircuit.addGate(line);
+
+    # qcircuit.show("circuit");
+
+    print("OpenFermion Circuit:")
+    for line in circuit:
+        print(line)
+
+
+
+fromFile("qasm.txt")
