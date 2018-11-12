@@ -150,23 +150,4 @@ def main():
                      
     # recorded_data.close();
     
-# main()
-
-
-
-
-
-def main():
-    # circuit = file.open("qasm.txt", "r")
-    # for line in circuit:
-    #     qcircuit.addGate(line);
-
-    # qcircuit.show("circuit");
-
-    print("OpenFermion Circuit:")
-    for line in circuit:
-        print(line)
-
-
-
-fromFile("qasm.txt")
+main()
