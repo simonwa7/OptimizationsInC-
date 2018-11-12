@@ -80,11 +80,11 @@ def main():
         
     start = time.time()
     for line in circuit:
-        print(line);
-        print("In Circuit: ")
+        # print(line);
+        # print("In Circuit: ")
         qcircuit.addGate(line);
-        print("Out of Circuit: ")
-        print
+        # print("Out of Circuit: ")
+        # print
         # qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
 
