@@ -197,3 +197,94 @@ void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
     // update other list's next gate
     currents[CNOT->controlQubit] = current->next;
 }
+
+void CircuitList::saveQASM(){
+    ofstream qasm ("outputQASM.txt");
+
+    vector<Gate *> currents;
+    for(int i=0; i<=this->maxQubit; i++){
+        currents.push_back(this->circuit[i]->head);
+    }
+
+    if(qasm.is_open()){
+        // print list for each qubitList to make sure all gates get printed
+        for(int i=0; i<=this->maxQubit; i++){
+            // front of current qubitList
+            Gate* current = currents[i];
+
+            // while there are still more gates in this qubitList...
+            while(current != NULL){
+     
+                if((current->gateType == 5) or (current->gateType == 1)){
+                    // CNOT gate, so print all the other gates that need to
+                    // come first
+                    saveBeforeThisCNOT(current, currents);
+                }else{
+                    // print this gate
+                    qasm << GATETYPE[current->gateType] << " ";
+
+                    if(current->coefficient != 0){
+                        qasm << current->coefficient << " ";
+                    }
+
+                    if(current->controlQubit != -1){
+                        qasm << current->controlQubit << " ";
+                    }
+
+                    qasm << current->targetQubit << "\n";
+                }
+
+                // go to next
+                current=current->next;
+            }
+        }
+    }else{
+        cout << "Couldn't open file\n";
+    }
+    return;
+}
+
+void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
+                                     ofstream qasm){
+    Gate* current = currents[CNOT->controlQubit];
+
+    if(qasm.is_open()){
+        // print every gate that needs to come before
+        while(current != CNOT->lastControl){
+
+            if((current->gateType == 5) or (current->gateType == 1)){
+                // CNOT gate, so print all the other gates that need to
+                // come first
+                printBeforeThisCNOT(current, currents);
+            }else{
+                // print this gate
+                qasm << GATETYPE[current->gateType] << " ";
+
+                if(current->coefficient != 0){
+                    qasm << current->coefficient << " ";
+                }
+
+                if(current->controlQubit != -1){
+                    qasm << current->controlQubit << " ";
+                }
+
+                qasm << current->targetQubit << "\n";
+            }
+
+            // go to next
+            current=current->next;
+        }    
+
+        // last thing to do is print out this CNOT gate then update currents
+        qasm << "CNOT ";
+        if(current->gateType == 1){
+            qasm << current->controlQubit << " " << current->targetQubit << "\n";
+        }else if(current->gateType == 5){
+            qasm << current->targetQubit << " " << current->controlQubit << "\n";
+        }
+        // update other list's next gate
+        currents[CNOT->controlQubit] = current->next;
+    }else{
+        cout << "Couldn't open file again\n";
+    }
+}

@@ -60,6 +60,7 @@ class CircuitList{
         ~CircuitList();
         void add(Gate newGate);
         void print();
+        void saveQASM();
         
     
     private:
@@ -69,6 +70,9 @@ class CircuitList{
         void addQubits(int target, int control);
         
         void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
+
+        void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
+                                     ofstream qasm);
 };
 
 #endif

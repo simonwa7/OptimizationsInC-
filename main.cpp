@@ -21,7 +21,7 @@ int main(){
 		}
 	}
 
-	// circuit->print();
+	circuit->saveQASM();
 
 	delete circuit;
 
