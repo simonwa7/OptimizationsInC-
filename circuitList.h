@@ -73,7 +73,7 @@ class CircuitList{
         void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
 
         void saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
-                                     ofstream qasm);
+                                     ofstream &qasm);
 };
 
 #endif

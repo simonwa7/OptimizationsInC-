@@ -245,7 +245,7 @@ void CircuitList::saveQASM(){
 }
 
 void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
-                                     ofstream qasm){
+                                     ofstream &qasm){
     Gate* current = currents[CNOT->controlQubit];
 
     if(qasm.is_open()){
