@@ -72,7 +72,7 @@ class CircuitList{
         
         void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
 
-        void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
+        void saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
                                      ofstream qasm);
 };
 
