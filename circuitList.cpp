@@ -31,8 +31,15 @@ void CircuitList::add(Gate gate){
     Input Parameter: Gate object
     Return: void
     Time Complexity: O(c)
-    Note: If a gate is a CNOT gate, the first input gate is 
-    the control, and the second is the target.
+    Note: For every gate, the targetQubit value is the qubit that is
+    being acted on. Only in the CNOT gate is the controlQubit value
+    populated. When a CNOT gate is added, two gates are added to this
+    data structure. The target gate acting on the current qubit and 
+    the control gate - with pointers in the lastControl instance pointing 
+    to each other.
+
+    GateType == 1 means a target CNOT
+    GateType == 5 means a control CNOT
 */
     // Initialize new Node
     Gate* newGate = new Gate;
@@ -40,7 +47,7 @@ void CircuitList::add(Gate gate){
     newGate->coefficient = gate.coefficient;
     newGate->targetQubit = gate.targetQubit;
     newGate->controlQubit = gate.controlQubit;
-    newGate->lastControl = NULL;
+    newGate->lastControl = gate.lastControl;
     newGate->next = NULL;
     newGate->before = NULL;
 
@@ -66,13 +73,15 @@ void CircuitList::add(Gate gate){
     qubit->tail = newGate;
 
     if(gate.gateType == 1){
-        // Initialize alert Node. I am the qubit that is the control
-        // my target and control values are flipped
+        // Initialize CNOT alert Node. I am the qubit that is the control
+        // my lastControl pointer points to my target and my target/control
+        // values are flipped
         Gate alertGate;
         alertGate.gateType = 5;
         alertGate.coefficient = 0;
         alertGate.targetQubit = gate.controlQubit;
         alertGate.controlQubit = gate.targetQubit;
+        alertGate.lastControl = newGate;
         add(alertGate);
 
         newGate->lastControl = this->circuit[gate.controlQubit]->tail; 
@@ -102,6 +111,8 @@ void CircuitList::print(){
     Time Complexity: O(g)
 */
     cout << "entered print" << endl;
+    // This vector contains pointers to the next gate that needs to be
+    // printed for each qubit
     vector<Gate *> currents;
     for(int i=0; i<=this->maxQubit; i++){
         if(this->circuit[i]->head == NULL){
@@ -110,33 +121,89 @@ void CircuitList::print(){
         currents.push_back(this->circuit[i]->head);
     }
 
+    // print list for each qubitList to make sure all gates get printed
     for(int i=0; i<=this->maxQubit; i++){
+        // front of current qubitList
         Gate* current = currents[i];
-        printFromCurrentToHere(current, this->circuit[i]->tail, currents);
-        if((this->circuit[i]->tail != NULL) and (this->circuit[i]->tail->gateType != 5)){
-            std::cout << GATETYPE[this->circuit[i]->tail->gateType] << ' ';
-            
-            if(this->circuit[i]->tail->coefficient != 0){
-                std::cout << this->circuit[i]->tail->coefficient << ' ';
+
+        // while there are still more gates in this qubitList...
+        while(current != NULL){
+ 
+            if((current->gateType == 5) or (current->gateType == 1)){
+                // CNOT gate, so print all the other gates that need to
+                // come first
+                printBeforeThisCNOT(current, currents);
+            }else{
+                // print this gate
+                cout << GATETYPE[current->gateType] << " ";
+
+                if(current->coefficient != 0){
+                    cout << current->coefficient << " ";
+                }
+
+                if(current->controlQubit != -1){
+                    cout << current->controlQubit << " ";
+                }
+
+                cout << current->targetQubit << "\n";
             }
 
-            if(this->circuit[i]->tail->controlQubit != -1){
-                cout << this->circuit[i]->tail->controlQubit << " ";
-            }
-            
-            std::cout << this->circuit[i]->tail->targetQubit << ' ';
-            
-            std::cout << "\n";
-
+            // go to next
+            current=current->next;
         }
     }
     return;
 }
 
+
+
+void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
+    Gate* current = currents[CNOT->controlQubit];
+
+    // print every gate that needs to come before
+    while(current != CNOT->lastControl){
+
+        if((current->gateType == 5) or (current->gateType == 1)){
+            // CNOT gate, so print all the other gates that need to
+            // come first
+            printBeforeThisCNOT(current, currents);
+        }else{
+            // print this gate
+            cout << GATETYPE[current->gateType] << " ";
+
+            if(current->coefficient != 0){
+                cout << current->coefficient << " ";
+            }
+
+            if(current->controlQubit != -1){
+                cout << current->controlQubit << " ";
+            }
+
+            cout << current->targetQubit << "\n";
+        }
+
+        // go to next
+        current=current->next;
+
+    }    
+
+    // last thing to do is print out this CNOT gate then update currents
+    cout << "CNOT ";
+    if(current->gateType == 1){
+        cout << current->controlQubit << " " << current->targetQubit << "\n";
+    }else if(current->gateType == 5){
+        cout << current->targetQubit << " " << current->controlQubit << "\n";
+    }
+    // update other list's next gate
+    currents[CNOT->controlQubit] = current->next;
+}
+
+
+
 void CircuitList::printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*> &currents){
     // cout << "Entered printTo" << endl;
 
-    while((current != NULL) and (current != here)){
+    while(current != here){
         if(current->gateType == 5){
             printFromCurrentToHere(currents[current->controlQubit], current->lastControl, currents);
         }else if(current->gateType != 1){
@@ -164,6 +231,8 @@ void CircuitList::printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*
     }
 }
 
+
+
 // Gate* CircuitList::getHead(Gate* current){
 //     if(current != NULL){
 //         Gate* prev = current->before;
@@ -175,4 +244,3 @@ void CircuitList::printFromCurrentToHere(Gate* current, Gate* here, vector<Gate*
 //     }
 //     return NULL;
 // }
-

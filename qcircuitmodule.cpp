@@ -201,6 +201,7 @@ Gate lineToGate(string line){
     obj.targetQubit = -1;
     obj.controlQubit = -1; 
     obj.coefficient = 0; 
+    obj.lastControl = NULL;
 
     string gateTypeString = ""; 
     
