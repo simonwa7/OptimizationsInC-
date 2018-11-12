@@ -5,7 +5,7 @@
 using namespace std;
 
 Gate lineToGate(string line);
-double getCoefficient(string line, int &i);
+double getCoefficient(string line, unsigned int &i);
 
 int main(){
 	CircuitList* circuit = new CircuitList;
@@ -89,7 +89,7 @@ Gate lineToGate(string line){
     return obj; 
 }
 
-double getCoefficient(string line, int &i){
+double getCoefficient(string line, unsigned int &i){
     string untypedCoefficient = "";
     
     while(line[i] != ' '){

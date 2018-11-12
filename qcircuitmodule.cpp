@@ -9,7 +9,7 @@ using namespace std;
 static PyObject *qcircuitError;
 
 Gate lineToGate(string line);
-double getCoefficient(string line, int &i);
+double getCoefficient(string line, unsigned int &i);
 
 CircuitList* CIRCUIT = new CircuitList;
 
@@ -256,7 +256,7 @@ Gate lineToGate(string line){
     return obj; 
 }
 
-double getCoefficient(string line, int &i){
+double getCoefficient(string line, unsigned int &i){
     string untypedCoefficient = "";
     
     while(line[i] != ' '){
