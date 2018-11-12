@@ -1,4 +1,4 @@
-#include <iostream>
+// #include <iostream>
 #include "circuitList.h"
 #include <fstream>
 
@@ -17,11 +17,11 @@ int main(){
 		while(getline(qasm, line)){
 			cout << line << endl;
 			Gate gate = lineToGate(line);
-			circuit.add(gate);
+			circuit->add(gate);
 		}
 	}
 
-	circuit.print();
+	circuit->print();
 
 	delete circuit;
 
