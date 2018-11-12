@@ -255,7 +255,7 @@ void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
             if((current->gateType == 5) or (current->gateType == 1)){
                 // CNOT gate, so print all the other gates that need to
                 // come first
-                saveBeforeThisCNOT(current, currents);
+                saveBeforeThisCNOT(current, currents, qasm);
             }else{
                 // print this gate
                 qasm << GATETYPE[current->gateType] << " ";
