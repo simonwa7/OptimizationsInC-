@@ -1,7 +1,7 @@
 #include "circuitList.h"
 
 CircuitList::CircuitList(){
-// Basic constructor for CircuitList class
+    // Basic constructor for CircuitList class
     // this->length = 0;
     // this->numCNOT = 0;
     // this->optimizedLength = 0;
@@ -12,7 +12,7 @@ CircuitList::CircuitList(){
 }
 
 CircuitList::~CircuitList(){
-// Destructor for CircuitList. Deletes all nodes still left in the circuit
+    // Destructor for CircuitList. Deletes all nodes still left in the circuit
     for(int i=this->maxQubit; i >= 0; i--){
         Gate* current = this->circuit[i]->head;
         
@@ -21,26 +21,28 @@ CircuitList::~CircuitList(){
             current = current->next;
             delete previous;
         }
+
+        delete circuit[i];
     }
 
     return;
 }
 
 void CircuitList::add(Gate gate){
-/* Purpose: Add a gate at the end of the circuit
-    Input Parameter: Gate object
-    Return: void
-    Time Complexity: O(c)
-    Note: For every gate, the targetQubit value is the qubit that is
-    being acted on. Only in the CNOT gate is the controlQubit value
-    populated. When a CNOT gate is added, two gates are added to this
-    data structure. The target gate acting on the current qubit and 
-    the control gate - with pointers in the lastControl instance pointing 
-    to each other.
+    /* Purpose: Add a gate at the end of the circuit
+        Input Parameter: Gate object
+        Return: void
+        Time Complexity: O(c)
+        Note: For every gate, the targetQubit value is the qubit that is
+        being acted on. Only in the CNOT gate is the controlQubit value
+        populated. When a CNOT gate is added, two gates are added to this
+        data structure. The target gate acting on the current qubit and 
+        the control gate - with pointers in the lastControl instance pointing 
+        to each other.
 
-    GateType == 1 means a target CNOT
-    GateType == 5 means a control CNOT
-*/
+        GateType == 1 means a target CNOT
+        GateType == 5 means a control CNOT
+    */
     // Initialize new Node
     Gate* newGate = new Gate;
     newGate->gateType = gate.gateType;
@@ -105,11 +107,11 @@ void CircuitList::addQubits(int target, int control){
 }
 
 void CircuitList::print(){
-/* Purpose: Print the circuit in readable QASM format
-    Input Parameter: void
-    Return: void
-    Time Complexity: O(g)
-*/
+    /* Purpose: Print the circuit in readable QASM format
+        Input Parameter: void
+        Return: void
+        Time Complexity: O(g)
+    */
     // cout << "entered print" << endl;
     // This vector contains pointers to the next gate that needs to be
     // printed for each qubit
@@ -154,8 +156,6 @@ void CircuitList::print(){
     }
     return;
 }
-
-
 
 void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
     Gate* current = currents[CNOT->controlQubit];
