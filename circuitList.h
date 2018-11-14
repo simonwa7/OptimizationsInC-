@@ -59,7 +59,10 @@ class CircuitList{
     public: 
         CircuitList();
         ~CircuitList();
+
         void add(Gate newGate);
+        void addAndOptimize(Gate gate);
+
         void print();
         void saveQASM();
         
@@ -69,11 +72,16 @@ class CircuitList{
         std::vector<QubitList*> circuit;
 
         void addQubits(int target, int control);
-        
-        void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
 
-        void saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
-                                     ofstream &qasm);
+        bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
+        bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
+
+        void removeNext(Gate gate, Gate* nextGate);
+        void removeGate(Gate* gate);
+
+        void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
+        void saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents, 
+                                ofstream &qasm);
 };
 
 #endif

@@ -106,6 +106,173 @@ void CircuitList::addQubits(int target, int control){
     return;
 }
 
+void CircuitList::addAndOptimize(Gate gate){
+    Gate *current = this->circuit[gate.targetQubit]->tail;
+    bool cancelled = false;
+
+    while(current != NULL){
+        if(checkIfGatesCancel(&gate, current)){
+            removeNext(gate, current);
+            cancelled = true;
+            break;
+        }else if(checkIfGatesCommute(&gate, current)){
+            current = current->before;
+        }else{
+            break;
+        }
+    }
+
+    if(!cancelled){
+        add(gate);
+    }
+}
+
+bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
+    /* Purpose: Check if two gates commute with one another based on defined 
+                commutation rules:
+        Input Parameter: Two Gate Objects
+        Return: boolean (true if gates commute, false otherwise)
+        Time Complexity: O(c)
+    */
+    // If they aren't CNOT gates, then they'll commute
+    if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate2->gateType != 5) && (gate2->gateType != 5)){
+        return true;
+    }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
+        // With a 1 type, if control == target, return false
+        return !(gate1->controlQubit == gate2->targetQubit);
+        // if(gate1->controlQubit == gate2->targetQubit){
+        //     return false;
+        // }
+        // return true;
+    }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
+        // CNOT control qubit is same as Rz (gateType5 has switched contol and target)
+        return false;
+        // return !(gate1->targetQubit == gate2->targetQubit);
+        // if(gate1->targetQubit == gate2->targetQubit){
+        //     return false;
+        // }
+        // return true;
+    }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
+        // same as before (CNOT and Rz)
+        return !(gate1->controlQubit == gate2->targetQubit);
+    }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
+        // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
+        return false;
+        // if(gate1->targetQubit != gate2->controlQubit){
+        //     return true;
+        // }
+        // return false;
+    }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
+        // gates don't commute if both CNOT and have swapped control/targets
+        return false;
+    }else if((gate1->gateType == 5) && (gate2->gateType == 1)){
+        return false;
+    }
+    // so here, at least one is a CNOT and the other is an Rx or H. In that case, 
+    // if they share any qubits, we should return false... which they must since
+    // they are on the same qubitList
+    return false;
+}
+
+
+bool CircuitList::checkIfGatesCancel(Gate* gate1, Gate* gate2){
+    /* Purpose: Check if two gates can cancel with eachother
+        Input Parameter: Two Gate Objects
+        Return: boolean (true if gates can cancel, false otherwise)
+        Time Complexity: O(c)
+    */
+    if((gate1->gateType == gate2->gateType) && 
+       (gate1->controlQubit == gate2->controlQubit)){
+        return true;
+    }
+    return false;
+}
+
+void CircuitList::removeNext(Gate gate, Gate* nextGate){
+    /* Purpose: Cancel and remove gates based on the two inputs
+        Input Parameter: Pointers to Two Node Objects
+        Return: void
+        Time Complexity: O(c)
+    */
+    // cerr << "Cancelling " << GATETYPE[currentGate->gateType] << currentGate->coefficient << " " << currentGate->controlQubit << " " << currentGate->targetQubit << "\n";
+    // cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
+    // Combine gates if gates are of type Rx or Rz
+    if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
+        nextGate->coefficient += gate.coefficient;
+        // --this->optimizedLength;
+        
+        // keep rotations within 2pi
+        if(nextGate->coefficient >= 6.2831853071795864){
+            nextGate->coefficient -= 6.2831853071795864;
+        }
+        if(nextGate->coefficient <= -6.2831853071795864){
+            nextGate->coefficient += 6.2831853071795864;
+        }
+
+        // Remove gates if combining gates results in a gate with 0 coefficient
+        if(nextGate->coefficient == 0){
+            // --this->optimizedLength;
+            removeGate(nextGate);
+        }
+    }else{
+        if((gate.gateType == 1) || (gate.gateType == 5)){
+            // If a CNOT gate cancellation, make sure to remove the other
+            // instance of that gate
+            removeGate(nextGate->lastControl);
+            // this->optimizedNumCNOT -= 2;
+        }
+        // this->optimizedLength -= 2;
+        removeGate(nextGate);
+    }
+    return;
+}
+
+void CircuitList::removeGate(Gate* gate){
+    /* Purpose: Remove input gate from the list
+        Input Parameter: Pointer to a Node Object
+        Return: void
+        Time Complexity: O(c)
+    */
+    // cerr << "Before nothing\n";
+    QubitList qubit = this->circuit[gate->targetQubit];
+    if(qubit->head == NULL || gate == NULL){
+        return;
+    }
+    
+    // cerr << "Before start\n";
+    // Update start to next gate if gate to remove is the start
+    if(qubit->head == gate){
+        // cerr << "Was start\n";
+        qubit->head = gate->next;
+    }
+    
+    // cerr << "Before last\n";
+    // Update last to previous gate if gate to remove is the last
+    if(qubit->tail == gate){
+        // cerr << "Was last\n";
+        qubit->tail = gate->before;
+    }
+    
+    // cerr << "Before reset next\n";
+    // Update next gate's before pointer
+    if(gate->next != NULL){
+        gate->next->before = gate->before;
+    }
+    
+    // cerr << "Before reset last\n";
+    // Update before gate's next pointer
+    if(gate->before != NULL){
+        gate->before->next = gate->next;
+    }
+    
+    // cerr << "Before memory release\n";
+    // Free memory if gate exists
+    if(gate != NULL){
+        delete gate;
+    }
+    return;
+}
+
 void CircuitList::print(){
     /* Purpose: Print the circuit in readable QASM format
         Input Parameter: void
@@ -244,8 +411,7 @@ void CircuitList::saveQASM(){
     return;
 }
 
-void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents,
-                                     ofstream &qasm){
+void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents, ofstream &qasm){
     Gate* current = currents[CNOT->controlQubit];
 
     if(qasm.is_open()){
