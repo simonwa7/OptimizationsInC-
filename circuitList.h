@@ -36,7 +36,7 @@ using namespace std;
 
 // An array of the possible gate types. This allows gate type to be an integer
 //      attribute to reduce time and memory.
-const std::string GATETYPE[] = {"H", "CNOT", "Rx", "Rz"};
+const std::string GATETYPE[] = {"H", "CNOT", "Rx", "Rz", "CNOT (control)"};
 
 // Declaration of the Gate object which also acts as the Node in a doubly 
 //		linked list.
