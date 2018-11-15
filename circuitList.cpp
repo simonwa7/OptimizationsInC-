@@ -136,8 +136,8 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         Return: boolean (true if gates commute, false otherwise)
         Time Complexity: O(c)
     */
-    cerr << "Does " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
-    cerr << "Commute with " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";    
+    cerr << "Does " << GATETYPE[gate1->gateType] << gate1->coefficient << " " << gate1->controlQubit << " " << gate1->targetQubit << "\n";
+    cerr << "Commute with " << GATETYPE[gate2->gateType] << gate2->coefficient << " " << gate2->controlQubit << " " << gate2->targetQubit << "\n";    
     // If they aren't CNOT gates, then they'll commute
     if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate2->gateType != 5) && (gate2->gateType != 5)){
         cerr << "true\n";
