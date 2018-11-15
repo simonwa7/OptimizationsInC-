@@ -234,7 +234,7 @@ void CircuitList::removeGate(Gate* gate){
         Time Complexity: O(c)
     */
     // cerr << "Before nothing\n";
-    QubitList qubit = this->circuit[gate->targetQubit];
+    QubitList* qubit = this->circuit[gate->targetQubit];
     if(qubit->head == NULL || gate == NULL){
         return;
     }

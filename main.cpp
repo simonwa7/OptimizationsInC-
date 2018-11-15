@@ -17,7 +17,7 @@ int main(){
 		while(getline(qasm, line)){
 			// cout << line << endl;
 			Gate gate = lineToGate(line);
-			circuit->add(gate);
+			circuit->addAndOptimize(gate);
 		}
 	}
 
