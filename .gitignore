@@ -2,3 +2,4 @@ datav2.txt
 generateCircuit.pyc
 ./build
 build/lib.macosx-10.6-x86_64-2.7/qcircuit.so
+outputQASM.txt
