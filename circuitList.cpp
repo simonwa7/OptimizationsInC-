@@ -156,7 +156,7 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         // return true;
     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
         // same as before (CNOT and Rz)
-        return !(gate1->controlQubit == gate2->targetQubit);
+        return !(gate1->targetQubit == gate2->controlQubit);
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
         return false;
