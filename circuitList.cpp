@@ -136,11 +136,15 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         Return: boolean (true if gates commute, false otherwise)
         Time Complexity: O(c)
     */
+    cerr << "Does " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
+    cerr << "Commute with " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";    
     // If they aren't CNOT gates, then they'll commute
     if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate2->gateType != 5) && (gate2->gateType != 5)){
+        cerr << "true\n";
         return true;
     }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
         // With a 1 type, if control == target, return false
+        cerr << !(gate1->controlQubit == gate2->targetQubit) << endl;
         return !(gate1->controlQubit == gate2->targetQubit);
         // if(gate1->controlQubit == gate2->targetQubit){
         //     return false;
@@ -148,6 +152,7 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         // return true;
     }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
         // CNOT control qubit is same as Rz (gateType5 has switched contol and target)
+        cerr << "false\n";
         return false;
         // return !(gate1->targetQubit == gate2->targetQubit);
         // if(gate1->targetQubit == gate2->targetQubit){
@@ -156,9 +161,11 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         // return true;
     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
         // same as before (CNOT and Rz)
+        cerr << !(gate1->controlQubit == gate2->targetQubit) << endl;
         return !(gate1->targetQubit == gate2->controlQubit);
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
+        cerr << "false\n";
         return false;
         // if(gate1->targetQubit != gate2->controlQubit){
         //     return true;
@@ -166,13 +173,16 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         // return false;
     }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
         // gates don't commute if both CNOT and have swapped control/targets
+        cerr << "false\n";
         return false;
     }else if((gate1->gateType == 5) && (gate2->gateType == 1)){
+        cerr << "false\n";
         return false;
     }
     // so here, at least one is a CNOT and the other is an Rx or H. In that case, 
     // if they share any qubits, we should return false... which they must since
     // they are on the same qubitList
+    cerr << "false\n";
     return false;
 }
 
@@ -196,8 +206,8 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
         Return: void
         Time Complexity: O(c)
     */
-    cerr << "Cancelling " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
-    cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
+    // cerr << "Cancelling " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
+    // cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
     // Combine gates if gates are of type Rx or Rz
     if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
         nextGate->coefficient += gate.coefficient;
