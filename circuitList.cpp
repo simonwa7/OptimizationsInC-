@@ -108,6 +108,7 @@ void CircuitList::addQubits(int target, int control){
 
 void CircuitList::addAndOptimize(Gate gate){
     cerr << "\n1";
+    addQubits(gate.targetQubit, gate.controlQubit);
     Gate *current = this->circuit[gate.targetQubit]->tail;
     bool cancelled = false;
     cerr << "2";
