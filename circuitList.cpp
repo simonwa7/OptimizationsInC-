@@ -107,23 +107,32 @@ void CircuitList::addQubits(int target, int control){
 }
 
 void CircuitList::addAndOptimize(Gate gate){
+    cerr << "\n1";
     Gate *current = this->circuit[gate.targetQubit]->tail;
     bool cancelled = false;
+    cerr << "2";
 
     while(current != NULL){
+        cerr << "3";
         if(checkIfGatesCancel(&gate, current)){
+            cerr << "4";
             removeNext(gate, current);
+            cerr << "5";
             cancelled = true;
             break;
         }else if(checkIfGatesCommute(&gate, current)){
+            cerr << "6";
             current = current->before;
         }else{
+            cerr << "7";
             break;
         }
     }
-
+    cerr << "8";
     if(!cancelled){
+        cerr << "9";
         add(gate);
+        cerr << "10";
     }
 }
 
