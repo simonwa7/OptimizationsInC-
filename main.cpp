@@ -11,7 +11,7 @@ int main(){
 	CircuitList* circuit = new CircuitList;
 
 	string line;
-	ifstream qasm ("qasm.txt");
+	ifstream qasm ("test1.txt");
 
 	if(qasm.is_open()){
 		while(getline(qasm, line)){

@@ -107,7 +107,7 @@ void CircuitList::addQubits(int target, int control){
 }
 
 void CircuitList::addAndOptimize(Gate gate){
-    
+    cerr << "Attempting to add " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
     addQubits(gate.targetQubit, gate.controlQubit);
     Gate *current = this->circuit[gate.targetQubit]->tail;
     bool cancelled = false;
@@ -206,8 +206,8 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
         Return: void
         Time Complexity: O(c)
     */
-    // cerr << "Cancelling " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
-    // cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
+    cerr << "Cancelling " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
+    cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
     // Combine gates if gates are of type Rx or Rz
     if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
         nextGate->coefficient += gate.coefficient;
