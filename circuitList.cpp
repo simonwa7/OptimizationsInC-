@@ -210,7 +210,7 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
     // Combine gates if gates are of type Rx or Rz
     if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
         nextGate->coefficient += gate.coefficient;
-        --this->optimizedLength;
+        // --this->optimizedLength;
         
         // keep rotations within 2pi
         if(nextGate->coefficient >= 6.2831853071795864){
@@ -230,9 +230,9 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
             // If a CNOT gate cancellation, make sure to remove the other
             // instance of that gate
             removeGate(nextGate->lastControl);
-            this->optimizedNumCNOT -= 2;
+            --this->optimizedNumCNOT;
         }
-        this->optimizedLength -= 2;
+        --this->optimizedLength;
         removeGate(nextGate);
     }
     return;
