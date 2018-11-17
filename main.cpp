@@ -8,6 +8,11 @@ Gate lineToGate(string line);
 double getCoefficient(string line, unsigned int &i);
 
 int main(int argc, char *argv[]){
+    if(argc < 1){
+        cerr << "Must specify a file through command line\n";
+        return 1;
+    }
+
     string qasm_filename = argv[1];
     cerr << qasm_filename << endl;
 
