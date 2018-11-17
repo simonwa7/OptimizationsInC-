@@ -476,3 +476,16 @@ void CircuitList::printLengths(){
     cout << "Optimized Length: " << this->optimizedLength << endl;
     cout << "Optimized Number of CNOT Gates: " << this->optimizedNumCNOT << endl;
 }
+
+unsigned long long CircuitList::getLength(){
+    return this->length;
+}
+unsigned long long CircuitList::getNumCNOT(){
+    return this->numCNOT;
+}
+unsigned long long CircuitList::getOptimizedLength(){
+    return this->optimizedLength;
+}
+unsigned long long CircuitList::getOptimizedNumCNOT(){
+    return this->optimizedNumCNOT;
+}

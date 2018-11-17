@@ -6,8 +6,8 @@ module1 = Extension('qcircuit',
                     sources = ['qcircuitmodule.cpp', 'circuitList.cpp'])
                     
 setup ( name = 'qcircuit',
-        version = '2',
+        version = '4',
         description = 'A c++ extension for optimizing quantum circuits',
         author = 'William Simon',
-        url = 'personalwebsite-william.herokuapp.com',
+        url = 'www.william-simon.com',
         ext_modules = [module1])

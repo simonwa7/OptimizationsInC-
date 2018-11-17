@@ -37,26 +37,26 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
 }
 
 static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
-//     const char* msg;
-//     int sts = 1;
+    const char* msg;
+    int sts = 1;
     
-//     if(!PyArg_ParseTuple(args, "s", &msg)){
-//         return NULL;
-//     }
+    if(!PyArg_ParseTuple(args, "s", &msg)){
+        return NULL;
+    }
 
-//     std::string line = msg;
+    std::string line = msg;
     
-//     if(line == "error"){
-//         PyErr_SetString(qcircuitError, "There was an exception raised while adding Gates");
-//         return NULL;
-//     }
+    if(line == "error"){
+        PyErr_SetString(qcircuitError, "There was an exception raised while adding Gates");
+        return NULL;
+    }
     
-//     sts = 0;
+    sts = 0;
 
-//     Gate gate = lineToGate(line);
-//     CIRCUIT -> addAndOptimize(gate);
+    Gate gate = lineToGate(line);
+    CIRCUIT -> addAndOptimize(gate);
 
-//     return Py_BuildValue("i", sts);
+    return Py_BuildValue("i", sts);
 }
 
 static PyObject* qcircuit_show(PyObject* self, PyObject *args){
@@ -146,34 +146,34 @@ static PyObject* qcircuit_clear(PyObject* self, PyObject *args){
 }
 
 static PyObject* qcircuit_get(PyObject* self, PyObject *args){
-//     const char* msg;
-//     unsigned long long value = 0;
+    const char* msg;
+    unsigned long long value = 0;
     
-//     if(!PyArg_ParseTuple(args, "s", &msg)){
-//         return NULL;
-//     }
+    if(!PyArg_ParseTuple(args, "s", &msg)){
+        return NULL;
+    }
     
-//     std::string command = msg;
+    std::string command = msg;
     
-//     if(command == "Number of gates"){
-//         value = CIRCUIT -> getLength();
-//     }else if(command == "Number of CNOT gates"){
-//         value = CIRCUIT -> getNumCNOT();
-//     }else if(command == "Optimized Number of CNOT gates"){
-//         value = CIRCUIT -> getOptimizedNumCNOT();
-//     }else if(command == "Optimized Number of gates"){
-//         value = CIRCUIT -> getOptimizedLength();
-//     }else{
-//         string error = "There was an exception raised while trying to use the ";
-//         error += "'get' fucntion.\n";
-//         error += "Did not understand value of: " + command;
-//         const char* char_error = error.c_str();
-//         PyErr_SetString(qcircuitError, char_error);
-//         return NULL;
-//     }
+    if(command == "length"){
+        value = CIRCUIT -> getLength();
+    }else if(command == "numCNOT"){
+        value = CIRCUIT -> getNumCNOT();
+    }else if(command == "optimizedNumCNOT"){
+        value = CIRCUIT -> getOptimizedNumCNOT();
+    }else if(command == "optimizedLength"){
+        value = CIRCUIT -> getOptimizedLength();
+    }else{
+        string error = "There was an exception raised while trying to use the ";
+        error += "'get' fucntion.\n";
+        error += "Did not understand value of: " + command;
+        const char* char_error = error.c_str();
+        PyErr_SetString(qcircuitError, char_error);
+        return NULL;
+    }
 
-//     //return unsigned py long long
-//     return Py_BuildValue("K", value);
+    //return unsigned py long long
+    return Py_BuildValue("K", value);
 }
 
 static PyMethodDef qcircuit_methods[] = {

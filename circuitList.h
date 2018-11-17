@@ -66,6 +66,11 @@ class CircuitList{
         void print();
         void saveQASM(string outputName);
         void printLengths();
+
+        unsigned long long getLength();
+        unsigned long long getNumCNOT();
+        unsigned long long getOptimizedLength();
+        unsigned long long getOptimizedNumCNOT();
     
     private:
         unsigned long long length;

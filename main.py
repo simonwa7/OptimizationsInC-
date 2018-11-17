@@ -82,26 +82,19 @@ def main():
     for line in circuit:
         # print(line);
         # print("In Circuit: ")
-        qcircuit.addGate(line);
+        # qcircuit.addGate(line);
         # print("Out of Circuit: ")
         # print
-        # qcircuit.addAndOptimizeGate(line)
+        qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
-
-    qcircuit.show("circuit");
-
-    print("OpenFermion Circuit:")
-    circuit = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
-    for line in circuit:
-        print(line)
         
     # qcircuit.show("circuit")  
     # print("Gate numbers prior to optimization:")   
     # print("Total Gates: ")
-    # gate_count = qcircuit.get("Number of gates")
+    gate_count = qcircuit.get("length")
     # print(gate_count)
     # print("CNOT Gates: ")
-    # CNOT_count = qcircuit.get("Number of CNOT gates")
+    CNOT_count = qcircuit.get("numCNOT")
     # print(CNOT_count)
         
     # start = time.time()
@@ -110,10 +103,10 @@ def main():
         
     # print("\nGate numbers after optimization:")  
     # print("Total Gates: ")
-    # optimized_gate_count = qcircuit.get("Optimized Number of gates")
+    optimized_gate_count = qcircuit.get("optimizedLength")
     # print(optimized_gate_count)
     # print("CNOT Gates: ")
-    # optimized_CNOT_count = qcircuit.get("Optimized Number of CNOT gates")
+    optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
     # print(optimized_CNOT_count)
     
     # qcircuit.clear("circuit")
@@ -132,22 +125,21 @@ def main():
     #     print("Time for Optimization of JW Mapping: {}".format(time_to_optimize))
         
         
-    # name = name.replace("_", " ")
-    # data = getMoleculeData(name, geometry, basis, multiplicity, charge)
-    # name = name.replace(" ", "_")
+    name = name.replace("_", " ")
+    data = getMoleculeData(name, geometry, basis, multiplicity, charge)
+    name = name.replace(" ", "_")
 
-    # recorded_data = open('datav2.txt', "a") 
-    # recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}\n"
-    #                  .format(name, mapping, data[0], 
-    #                          basis, multiplicity, charge, 
-    #                          data[1], 
-    #                          data[2],
-    #                          gate_count, CNOT_count, 
-    #                          optimized_gate_count, optimized_CNOT_count,
-    #                          time_to_generate, time_to_loop,
-    #                          time_to_optimize)
-    #                  )
+    recorded_data = open('datav4.txt', "a") 
+    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}\n"
+                     .format(name, mapping, data[0], 
+                             basis, multiplicity, charge, 
+                             data[1], 
+                             data[2],
+                             gate_count, CNOT_count, 
+                             optimized_gate_count, optimized_CNOT_count,
+                             time_to_generate, time_to_loop)
+                     )
                      
-    # recorded_data.close();
+    recorded_data.close();
     
 main()
