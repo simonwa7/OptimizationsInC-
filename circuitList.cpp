@@ -368,7 +368,7 @@ void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
 
 void CircuitList::saveQASM(){
     ofstream qasm ("outputQASM.txt");
-    qasm.setprecision(15);
+    qasm.precision(15);
     vector<Gate *> currents;
     for(int i=0; i<=this->maxQubit; i++){
         currents.push_back(this->circuit[i]->head);
