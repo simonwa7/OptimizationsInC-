@@ -8,7 +8,7 @@ Gate lineToGate(string line);
 double getCoefficient(string line, unsigned int &i);
 
 int main(int argc, char *argv[]){
-    qasm_filename = argv[1];
+    string qasm_filename = argv[1];
     cerr << qasm_filename << endl;
 
 	CircuitList* circuit = new CircuitList;
@@ -24,7 +24,8 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	circuit->saveQASM();
+    string outputFileName = qasm_filename.substr(0, qasm_filename.size()-4) + "_Optimized.txt"
+	circuit->saveQASM(outputFileName);
 
 	delete circuit;
 
