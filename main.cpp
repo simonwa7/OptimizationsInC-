@@ -14,7 +14,6 @@ int main(int argc, char *argv[]){
     }
 
     string qasm_filename = argv[1];
-    cerr << qasm_filename << endl;
 
 	CircuitList* circuit = new CircuitList;
 
@@ -23,7 +22,6 @@ int main(int argc, char *argv[]){
 
 	if(qasm.is_open()){
 		while(getline(qasm, line)){
-			// cerr << line << endl;
 			Gate gate = lineToGate(line);
 			circuit->addAndOptimize(gate);
 		}
