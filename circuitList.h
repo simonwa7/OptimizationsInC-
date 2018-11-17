@@ -64,7 +64,7 @@ class CircuitList{
         void addAndOptimize(Gate gate);
 
         void print();
-        void saveQASM();
+        void saveQASM(string outputName);
         
     
     private:
