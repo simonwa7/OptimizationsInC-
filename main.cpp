@@ -29,6 +29,7 @@ int main(int argc, char *argv[]){
 
     string outputFileName = qasm_filename.substr(0, qasm_filename.size()-4) + "_Optimized.txt";
 	circuit->saveQASM(outputFileName);
+    circuit->show("lengths");
 
 	delete circuit;
 

@@ -65,9 +65,14 @@ class CircuitList{
 
         void print();
         void saveQASM(string outputName);
-        
+        void printLengths();
     
     private:
+        unsigned long long length;
+        unsigned long long numCNOT;
+        unsigned long long optimizedLength;
+        unsigned long long optimizedNumCNOT;
+
         short int maxQubit;
         std::vector<QubitList*> circuit;
 

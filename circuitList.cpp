@@ -2,10 +2,10 @@
 
 CircuitList::CircuitList(){
     // Basic constructor for CircuitList class
-    // this->length = 0;
-    // this->numCNOT = 0;
-    // this->optimizedLength = 0;
-    // this->optimizedNumCNOT = 0;
+    this->length = 0;
+    this->numCNOT = 0;
+    this->optimizedLength = 0;
+    this->optimizedNumCNOT = 0;
     this->maxQubit = -1;
     
     return;
@@ -43,6 +43,9 @@ void CircuitList::add(Gate gate){
         GateType == 1 means a target CNOT
         GateType == 5 means a control CNOT
     */
+    ++this->length;
+    ++this->optimizedLength;
+
     // Initialize new Node
     Gate* newGate = new Gate;
     newGate->gateType = gate.gateType;
@@ -78,6 +81,8 @@ void CircuitList::add(Gate gate){
         // Initialize CNOT alert Node. I am the qubit that is the control
         // my lastControl pointer points to my target and my target/control
         // values are flipped
+        ++this->numCNOT;
+        ++this->optimizedNumCNOT;
         Gate alertGate;
         alertGate.gateType = 5;
         alertGate.coefficient = 0;
@@ -128,6 +133,11 @@ void CircuitList::addAndOptimize(Gate gate){
     
     if(!cancelled){
         add(gate);
+    }else{
+        ++this->length;
+        if(gate.gateType == 1){
+            ++this->numCNOT;
+        }
     }
 }
 
@@ -200,7 +210,7 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
     // Combine gates if gates are of type Rx or Rz
     if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
         nextGate->coefficient += gate.coefficient;
-        // --this->optimizedLength;
+        --this->optimizedLength;
         
         // keep rotations within 2pi
         if(nextGate->coefficient >= 6.2831853071795864){
@@ -212,7 +222,7 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
 
         // Remove gates if combining gates results in a gate with 0 coefficient
         if(nextGate->coefficient == 0){
-            // --this->optimizedLength;
+            --this->optimizedLength;
             removeGate(nextGate);
         }
     }else{
@@ -220,9 +230,9 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
             // If a CNOT gate cancellation, make sure to remove the other
             // instance of that gate
             removeGate(nextGate->lastControl);
-            // this->optimizedNumCNOT -= 2;
+            this->optimizedNumCNOT -= 2;
         }
-        // this->optimizedLength -= 2;
+        this->optimizedLength -= 2;
         removeGate(nextGate);
     }
     return;
@@ -455,4 +465,12 @@ void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents, ofstre
     }else{
         cout << "Couldn't open file again\n";
     }
+}
+
+void CircuitList::printLengths(){
+    cout << "\n ------- Gate Counts -------\n";
+    cout << "Unoptimized Length: " << this->length << endl;
+    cout << "Unoptimized Number of CNOT Gates: " << this->numCNOT << endl;
+    cout << "Optimized Length: " << this->optimizedLength << endl;
+    cout << "Optimized Number of CNOT Gates: " << this->optimizedNumCNOT << endl;
 }

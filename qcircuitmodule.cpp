@@ -72,6 +72,9 @@ static PyObject* qcircuit_show(PyObject* self, PyObject *args){
     if(command == "circuit"){
         CIRCUIT -> print();
         sts = 0;
+    }else if(command == "lengths"){
+        CIRCUIT -> printLengths();
+        sts = 0;
 //     }else if(command == "Number of gates"){
 //         cout << CIRCUIT -> getLength() << "\n";
 //         sts = 0;
