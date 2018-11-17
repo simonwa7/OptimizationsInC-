@@ -154,8 +154,8 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         return false;
     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
         // same as before (Rz cannot act on control qubit)
-        cerr << !(gate1->targetQubit != gate2->controlQubit) << endl;
-        return !(gate1->targetQubit != gate2->controlQubit);
+        cerr << (gate1->targetQubit != gate2->controlQubit) << endl;
+        return (gate1->targetQubit != gate2->controlQubit);
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
         cerr << "false\n";
@@ -368,7 +368,7 @@ void CircuitList::printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents){
 
 void CircuitList::saveQASM(){
     ofstream qasm ("outputQASM.txt");
-
+    qasm.setprecision(15);
     vector<Gate *> currents;
     for(int i=0; i<=this->maxQubit; i++){
         currents.push_back(this->circuit[i]->head);
@@ -416,6 +416,7 @@ void CircuitList::saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents, ofstre
     Gate* current = currents[CNOT->controlQubit];
 
     if(qasm.is_open()){
+        cerr << "COULDNT OPEN QASM IN saveBeforeThisCNOT\n";
         // print every gate that needs to come before
         while(current != CNOT->lastControl){
 
