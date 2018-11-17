@@ -130,7 +130,7 @@ def main():
     name = name.replace(" ", "_")
 
     recorded_data = open('datav4.txt', "a") 
-    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}\n"
+    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13}\n"
                      .format(name, mapping, data[0], 
                              basis, multiplicity, charge, 
                              data[1], 
