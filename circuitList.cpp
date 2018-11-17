@@ -83,6 +83,8 @@ void CircuitList::add(Gate gate){
         // values are flipped
         ++this->numCNOT;
         ++this->optimizedNumCNOT;
+        --this->length;
+        --this->optimizedLength;
         Gate alertGate;
         alertGate.gateType = 5;
         alertGate.coefficient = 0;
