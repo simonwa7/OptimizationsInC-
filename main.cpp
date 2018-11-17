@@ -7,15 +7,18 @@ using namespace std;
 Gate lineToGate(string line);
 double getCoefficient(string line, unsigned int &i);
 
-int main(){
+int main(int argc, char *argv[]){
+    qasm_filename = argv[1];
+    cerr << qasm_filename << endl;
+
 	CircuitList* circuit = new CircuitList;
 
 	string line;
-	ifstream qasm ("test1.txt");
+	ifstream qasm (qasm_filename);
 
 	if(qasm.is_open()){
 		while(getline(qasm, line)){
-			// cout << line << endl;
+			// cerr << line << endl;
 			Gate gate = lineToGate(line);
 			circuit->addAndOptimize(gate);
 		}
