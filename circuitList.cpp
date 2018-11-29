@@ -137,7 +137,7 @@ void CircuitList::addAndOptimize(Gate gate){
         alertGate.lastControl = NULL;
         Gate* gateToCancel2 = checkPreviousGates(alertGate);
 
-        if((gatetoCancel1 != NULL) and (gateToCancel2 != NULL)){
+        if((gateToCancel1 != NULL) and (gateToCancel2 != NULL)){
             removeNext(gate, gateToCancel1);
             ++this->length;
             ++this->numCNOT;
