@@ -116,31 +116,81 @@ void CircuitList::addQubits(int target, int control){
 void CircuitList::addAndOptimize(Gate gate){
     // cerr << "Attempting to add " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
     addQubits(gate.targetQubit, gate.controlQubit);
-    Gate *current = this->circuit[gate.targetQubit]->tail;
-    bool cancelled = false;
+    
+    if(gate.gateType != 1){
+        gateToCancel = checkPreviousGates(gate);
+
+        if(gateToCancel == NULL){
+            add(gate);
+        }else{
+            removeNext(gateToCancel);
+            ++this->length;
+        }
+    }else{
+        gateToCancel1 = checkPreviousGates(gate);
+
+        Gate alertGate;
+        alertGate.gateType = 5;
+        alertGate.coefficient = 0;
+        alertGate.targetQubit = gate.controlQubit;
+        alertGate.controlQubit = gate.targetQubit;
+        alertGate.lastControl = NULL;
+        gateToCancel2 = checkPreviousGates(alertGate);
+
+        if((gatetoCancel1 != NULL) and (gateToCancel2 != NULL)){
+            removeNext(gateToCancel);
+            ++this->length;
+            ++this->numCNOT;
+        }else{
+            add(gate);
+        }
+    }
+}
+
+// void CircuitList::addAndOptimize(Gate gate){
+//     // cerr << "Attempting to add " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
+//     addQubits(gate.targetQubit, gate.controlQubit);
+//     Gate *current = this->circuit[gate.targetQubit]->tail;
+//     bool cancelled = false;
+
+//     while(current != NULL){
+//         if(checkIfGatesCancel(&gate, current)){
+//             removeNext(gate, current);
+//             cancelled = true;
+//             break;
+//         }else if(checkIfGatesCommute(&gate, current)){
+//             // cerr << "Gates commuting\n";
+//             current = current->before;
+//         }else{
+//             // cerr << "Gates not commuting\n";
+//             break;
+//         }
+//     }
+    
+//     if(!cancelled){
+//         add(gate);
+//     }else{
+//         ++this->length;
+//         if(gate.gateType == 1){
+//             ++this->numCNOT;
+//         }
+//     }
+// }
+
+Gate* CircuitList::checkPreviousGates(Gate gate){
+    Gate* current = this->circuit[gate.targetQubit]->tail;
 
     while(current != NULL){
         if(checkIfGatesCancel(&gate, current)){
-            removeNext(gate, current);
-            cancelled = true;
-            break;
+            return current;
         }else if(checkIfGatesCommute(&gate, current)){
-            // cerr << "Gates commuting\n";
             current = current->before;
         }else{
-            // cerr << "Gates not commuting\n";
-            break;
+            return NULL;
         }
     }
-    
-    if(!cancelled){
-        add(gate);
-    }else{
-        ++this->length;
-        if(gate.gateType == 1){
-            ++this->numCNOT;
-        }
-    }
+
+    return NULL;
 }
 
 bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){

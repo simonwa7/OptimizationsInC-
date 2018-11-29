@@ -83,6 +83,7 @@ class CircuitList{
 
         void addQubits(int target, int control);
 
+        Gate* checkPreviousGates(Gate gate);
         bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
         bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
 
