@@ -123,7 +123,7 @@ void CircuitList::addAndOptimize(Gate gate){
         if(gateToCancel == NULL){
             add(gate);
         }else{
-            removeNext(gateToCancel);
+            removeNext(gate, gateToCancel);
             ++this->length;
         }
     }else{
@@ -138,7 +138,7 @@ void CircuitList::addAndOptimize(Gate gate){
         Gate* gateToCancel2 = checkPreviousGates(alertGate);
 
         if((gatetoCancel1 != NULL) and (gateToCancel2 != NULL)){
-            removeNext(gateToCancel1);
+            removeNext(gate, gateToCancel1);
             ++this->length;
             ++this->numCNOT;
         }else{
