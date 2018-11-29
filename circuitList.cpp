@@ -118,7 +118,7 @@ void CircuitList::addAndOptimize(Gate gate){
     addQubits(gate.targetQubit, gate.controlQubit);
     
     if(gate.gateType != 1){
-        gateToCancel = checkPreviousGates(gate);
+        Gate* gateToCancel = checkPreviousGates(gate);
 
         if(gateToCancel == NULL){
             add(gate);
@@ -127,7 +127,7 @@ void CircuitList::addAndOptimize(Gate gate){
             ++this->length;
         }
     }else{
-        gateToCancel1 = checkPreviousGates(gate);
+        Gate* gateToCancel1 = checkPreviousGates(gate);
 
         Gate alertGate;
         alertGate.gateType = 5;
@@ -135,10 +135,10 @@ void CircuitList::addAndOptimize(Gate gate){
         alertGate.targetQubit = gate.controlQubit;
         alertGate.controlQubit = gate.targetQubit;
         alertGate.lastControl = NULL;
-        gateToCancel2 = checkPreviousGates(alertGate);
+        Gate* gateToCancel2 = checkPreviousGates(alertGate);
 
         if((gatetoCancel1 != NULL) and (gateToCancel2 != NULL)){
-            removeNext(gateToCancel);
+            removeNext(gateToCancel1);
             ++this->length;
             ++this->numCNOT;
         }else{
