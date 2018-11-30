@@ -207,21 +207,18 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         // cerr << "false\n";
         return false;
     }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
-        // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the control qubit for the CNOT
-        // cerr << (gate1->controlQubit != gate2->targetQubit) << endl;
-        return (gate1->controlQubit != gate2->targetQubit);
+        // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the target qubit for the CNOT
+        return false;
     }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
         // CNOT control qubit is same as Rz (gateType5 has switched contol and target)
-        // cerr << "false\n";
-        return false;
+        return (gate1->controlQubit != gate2->targetQubit);
     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
         // same as before (Rz cannot act on control qubit)
-        // cerr << (gate1->targetQubit != gate2->controlQubit) << endl;
-        return (gate1->targetQubit != gate2->controlQubit);
+        return false;
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
         // cerr << "false\n";
-        return false;
+        return (gate1->targetQubit != gate2->controlQubit);
     }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
         // gates don't commute if both CNOT and have swapped control/targets
         // cerr << "false\n";
