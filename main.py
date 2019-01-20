@@ -16,7 +16,7 @@ INPUT FORMAT (all on one line):
 for each atom: [atomic symbol] [z coord] [y coord] [x coord]/
                [basis]
            OR:
-               python main.py [name] [pubchem] [multiplicity] [charge]/
+               python main.py [name] pubchem [multiplicity] [charge]/
                [mapping] [basis] 
 
 EXAMPLE FORMAT:
