@@ -1,3 +1,35 @@
+''' 
+Purpose: 
+This script uses the generateCircuit class (dependent on OpenFerimon and
+Psi4) to generate a circuit in QASM format that represents the time evoltuion
+of the hamiltonian through the Trotter-Suzuki decomposition method. Through the
+command line, a client will pass the molecular definition and once created, the
+circuit is parsed and each gate is converted to an internal gate representation
+before being passed to the CircuitList class (written in C++). This class is
+wrapped (making it useable in Python) through the qcircuit module (which must
+be built and installed locally prior to running this script). The CircuitList 
+class then uses internal optimization techniques to reduce possible gate
+cancellations. The gate count statistics are then printed to a datafile.
+
+INPUT FORMAT (all on one line):
+               python main.py [name] [multiplicity] [charge] [mapping]/
+for each atom: [atomic symbol] [z coord] [y coord] [x coord]/
+               [basis]
+           OR:
+               python main.py [name] [pubchem] [multiplicity] [charge]/
+               [mapping] [basis] 
+
+EXAMPLE FORMAT:
+python main.py H2 1 0 JW H 0 0 0 H 0.7414 0 0 sto-3g
+^above simulates the H2 molecule at equilibrium bond-length
+
+TODO:
+
+Biggest Time Concerns:
+    generating circuit with OpenFermion
+    *optimizing circuit with CircuitList
+
+'''
 import qcircuit
 from generateCircuit import GenerateCircuit
 import sys
@@ -5,9 +37,79 @@ import time
 import array
 from openfermion.utils import count_qubits
 
+def parse_inputs(input):
+    ''' 
+    ARGS: 
+        input: string (sys.argv)
+    RETURNS:
+        geometry: list of tuples in format: 
+            ([atomic symbol], ([z], [y], [x]))
+        basis: string for the calculation of the molecular integrals
+        name: string for the name of the molecule
+        multiplicity: integer
+        charger: integer
+        mapping: string (either BK or JW) representing the desired transformation
+    Purpose:
+        This function parses the command line arguements to the syntax desired
+        in this script.
+    '''
+    # Parse input arguements
+    name = str(input[1])
+    if(len(input) == 7):
+        # In this case, the client has chosen to get the geometry from the 
+        # pubchem database. This is possible through OpenFermion, so the 
+        # geometry is just set to "pubchem" from the input 
+        geometry = str(input[2])
+        multiplicity = int(input[3])
+        charge = int(input[4])
+        mapping = str(input[5])
+        basis = str(input[6])
+    elif((len(input)-6)%4 == 0):
+        # In this case, the client has chosen to specify the geometry on input.
+        # Because each additional atom requires 4 parameters (name z, y, x), the
+        # number of input parameters should be 4n+6
+        multiplicity = int(input[2])
+        charge = int(input[3])
+        mapping = str(input[4])
+        geometry = list()
+        num_atoms = (len(input)-6)/4
+        basis = str(input[len(input)-1])
+        for index in range(num_atoms):
+            atom_index = (index*4)+5
+            atom = tuple((str(input[atom_index]), 
+                (float(input[atom_index+1]),float(input[atom_index+2]),
+                 float(input[atom_index+3]))))
+            geometry.append(atom)
+    else:
+        sys.exit("Incorrect command line arguements")
+
+    return geometry, basis, name, multiplicity, charge, mapping
+
+
 def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
-    # Load appropraite molecule
+    '''
+    ARGS:
+        name: string representing the name of the molecule
+        geometry: list of tuples in format: 
+            ([atomic symbol], ([z], [y], [x]))
+        basis: string representing the basis for the calculation
+        multiplicity: integer
+        charge: integer
+        mapping: string (either BK or JW) to determine the desired 
+            transformation
+    RETURNS:
+        circuit: generator object that returns QASM strings
+        n_qubits: integer for the number of qubits needed for simulation
+
+    Pupose:
+        This function is designed to interact with the generateCircuit wrapper
+        for OpenFermion. Its main functionality is to provide the generator
+        object produced by OpenFermion for the QASM circuit of the molecule
+    '''
+    # Get the wrapper
     molecule = GenerateCircuit() 
+    
+    # Set variables
     molecule.set_name(name)
     if(geometry == "pubchem"):
         print(name)
@@ -17,7 +119,10 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
     molecule.set_basis(basis)
     molecule.set_multiplicity(multiplicity)
     molecule.set_charge(charge)
+
+    # load molecule
     molecule.load_molecule() 
+    # create the hamiltonians
     molecule.create_hamiltonians()
     n_qubits = count_qubits(molecule.fermion_hamiltonian)
     molecule.create_circuits(mapping)
@@ -27,121 +132,53 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
         return [molecule.jw_circuit, n_qubits]
     else:
         sys.exit("Didn't understand mapping")
-        
-def getMoleculeData(name, geometry, basis, multiplicity, charge):
-    # Load appropraite molecule
-    molecule2 = GenerateCircuit() 
-    molecule2.set_name(name)
-    if(geometry == "pubchem"):
-        molecule2.get_geometry_from_pubchem()
-    else:
-        molecule2.set_geometry(geometry)
-    molecule2.set_basis(basis)
-    molecule2.set_multiplicity(multiplicity)
-    molecule2.set_charge(charge)
-    molecule2.load_molecule() 
-    molecule2.create_hamiltonians()
-    data = array.array('i', [0, 0, 0]) 
-    data[0] = molecule2.molecule.n_qubits
-    data[1] = molecule2.active_space_start
-    data[2] = molecule2.active_space_stop
-    return data
+   
+
+if __name__ == '__main__':
+    geometry, basis, name, multiplicity, charge, mapping = parse_inputs(sys.argv)
     
-def main():
-    # Parse input arguements
-    name = str(sys.argv[1])
-    if(len(sys.argv) == 7):
-        geometry = str(sys.argv[2])
-        multiplicity = int(sys.argv[3])
-        charge = int(sys.argv[4])
-        mapping = str(sys.argv[5])
-        basis = str(sys.argv[6])
-    elif((len(sys.argv)-6)%4 == 0):
-        multiplicity = int(sys.argv[2])
-        charge = int(sys.argv[3])
-        mapping = str(sys.argv[4])
-        geometry = list()
-        num_atoms = (len(sys.argv)-6)/4
-        basis = str(sys.argv[len(sys.argv)-1])
-        for index in range(num_atoms):
-            atom_index = (index*4)+5
-            atom = tuple((str(sys.argv[atom_index]), (float(sys.argv[atom_index+1]),float(sys.argv[atom_index+2]),float(sys.argv[atom_index+3]))))
-            geometry.append(atom)
-    else:
-        sys.exit("Incorrect command line arguements")
-        
-    print(geometry)
-    print(basis)
+    # used for debugging
+    print geometry, "\n", basis
     name = name.replace("_", " ")
     
+    # initialize empty array to store the QASM strings
     qasm = [];
+    # time the process of getting the circuit
     start = time.time()
+    # circuit is a generator object to get the next gate in the circuit
     circuit, n_qubits = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
+    
+    # in order to test the timing of the methods appropriately, we need to
+    # load the entire circuit into RAM. Hence we loop through the returned
+    # generator object so that no more time is needed to generate the next gate
     for line in circuit:
-        # print line
         qasm.append(line);
     time_to_generate = time.time()-start
     
     name = name.replace(" ", "_")
     
+    # used for debugging
     if(mapping == "BK"):
         print("BRAVYI-KITAEV MAPPING\n")
     elif(mapping == "JW"):
         print("\nJORDAN-WIGNER MAPPING")
         
+    # time the process of adding and optimizing 
     start = time.time()
     for line in qasm:
-        # print(line);
-        # print("In Circuit: ")
-        # qcircuit.addGate(line);
-        # print("Out of Circuit: ")
-        # print
+        # add and optimize each line through the process. A negligible amount of
+        # time is spent translating from QASM to the gate object required by the
+        # circuitList class
         qcircuit.addAndOptimizeGate(line)
     time_to_loop = time.time()-start
-        
-    # qcircuit.show("circuit")  
-    # print("Gate numbers prior to optimization:")   
-    # print("Total Gates: ")
+    
     gate_count = qcircuit.get("length")
-    # print(gate_count)
-    # print("CNOT Gates: ")
     CNOT_count = qcircuit.get("numCNOT")
-    # print(CNOT_count)
-        
-    # start = time.time()
-    # qcircuit.optimize("circuit")
-    # time_to_optimize = time.time()-start
-        
-    # print("\nGate numbers after optimization:")  
-    # print("Total Gates: ")
     optimized_gate_count = qcircuit.get("optimizedLength")
-    # print(optimized_gate_count)
-    # print("CNOT Gates: ")
     optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
-    # print(optimized_CNOT_count)
-    
-    # qcircuit.clear("circuit")
-    
-    # print("\nTIMINGS")
-    
-    # if(mapping == "BK"):
-    #     print("BRAVYI-KITAEV")
-    #     print("Time for OpenFermion Generation of BK Mapping: {}".format(time_to_generate))
-    #     print("Time for Looping of BK Mapping: {}".format(time_to_loop))
-    #     print("Time for Optimization of BK Mapping: {}".format(time_to_optimize))
-    # elif(mapping == "JW"):
-    #     print("JORDAN-WIGNER")
-    #     print("Time for OpenFermion Generation of JW Mapping: {}".format(time_to_generate))
-    #     print("Time for Looping of JW Mapping: {}".format(time_to_loop))
-    #     print("Time for Optimization of JW Mapping: {}".format(time_to_optimize))
-        
-        
-    # name = name.replace("_", " ")
-    # data = getMoleculeData(name, geometry, basis, multiplicity, charge)
-    # name = name.replace(" ", "_")
 
-    # dataFileName = 'datav1_' + str(basis) + '.txt'
-    dataFileName = 'datav1_H3_varied_bases.txt'
+    # record data and performance information
+    dataFileName = 'data.txt'
     recorded_data = open(dataFileName, "a") 
     recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n"
                      .format(name, n_qubits, mapping,
@@ -152,5 +189,3 @@ def main():
                      )
                      
     recorded_data.close();
-    
-main()
