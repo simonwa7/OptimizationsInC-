@@ -52,11 +52,17 @@ structure.
   * `python main.py Hydrogen pubchem 1 0 BK sto-3g`
   
 molecule name - string with the name of the molecule (if using pubchem database, must be their name)
+
 multiplicity - integer with the calculated multiplicity (2S+1)
+
 charge - integer, self explanatory
+
 mapping - string, either JW or BK for Jordan-Wigner or Bravyi-Kitaev respectively
+
 atomic symbol - string, atomic symbol from the periodic table
+
 coordinates - float, cartesian coordinates in 3 dimensional space
+
 basis - string with the chosen basis set for molecular integral calculation. See Psi4 documentation for possible basis sets
 
 ## Internal Representation
