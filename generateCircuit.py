@@ -286,20 +286,21 @@ class GenerateCircuit():
                 the "load_molecule()" function is called to ensure proper 
                 usage.'''
         
-        # If not client defined, generates based on maximum orbitals
-        if(not self.active_space_start):
-            self.active_space_start = 0
-        if(not self.active_space_stop):
-            if(self.molecule):
-                self.active_space_stop = (self.molecule.n_qubits/2)
+        # # If not client defined, generates based on maximum orbitals
+        # if(not self.active_space_start):
+        #     self.active_space_start = 0
+        # if(not self.active_space_stop):
+        #     if(self.molecule):
+        #         self.active_space_stop = (self.molecule.n_qubits/2)
         
-        # Get the Hamiltonian in an active space.
-        molecular_hamiltonian = self.molecule.get_molecular_hamiltonian(
-            occupied_indices=range(self.active_space_start),
-            active_indices=range(self.active_space_start, 
-                                 self.active_space_stop))
-        
+        # # Get the Hamiltonian in an active space.
+        # molecular_hamiltonian = self.molecule.get_molecular_hamiltonian(
+        #     occupied_indices=range(self.active_space_start),
+        #     active_indices=range(self.active_space_start, 
+        #                          self.active_space_stop))
+        molecular_hamiltonian = self.molecule.get_molecular_hamiltonian()
         self.fermion_hamiltonian = get_fermion_operator(molecular_hamiltonian)
+        self.fermion_hamiltonian = normal_ordered(self.fermion_hamiltonian)
         
     def create_circuits(self, mapping):
         ''' A simple function to generate the circuits for both the 
@@ -309,13 +310,17 @@ class GenerateCircuit():
                 
         if(mapping == 'JW'):
             self.qubit_hamiltonian_jw = jordan_wigner(self.fermion_hamiltonian)
+            self.qubit_hamiltonian_jw.compress()
             self.jw_circuit = pauli_exp_to_qasm([self.qubit_hamiltonian_jw])
         elif(mapping == 'BK'):
             self.qubit_hamiltonian_bk = bravyi_kitaev(self.fermion_hamiltonian)
+            self.qubit_hamiltonian_bk.compress()
             self.bk_circuit = pauli_exp_to_qasm([self.qubit_hamiltonian_bk])
         elif(mapping == 'both'):
             self.qubit_hamiltonian_jw = jordan_wigner(self.fermion_hamiltonian)
             self.qubit_hamiltonian_bk = bravyi_kitaev(self.fermion_hamiltonian)
+            self.qubit_hamiltonian_jw.compress()
+            self.qubit_hamiltonian_bk.compress()
             self.jw_circuit = pauli_exp_to_qasm([self.qubit_hamiltonian_jw])
             self.bk_circuit = pauli_exp_to_qasm([self.qubit_hamiltonian_bk])
         else:
@@ -339,6 +344,7 @@ class GenerateCircuit():
                                      self.multiplicity, self.charge)
         
         # Determine if integrals have been previously generated or not
+        # print(molecule.filename)
         if not(os.path.exists(molecule.filename + '.hdf5')):
         
             # Set calculation parameters.
@@ -353,6 +359,18 @@ class GenerateCircuit():
             molecule.load()
         else:
             molecule.load()
+        
+        
+        # # Set calculation parameters.
+        # run_scf, run_mp2, run_cisd, run_ccsd, run_fci = 1, 1, 1, 1, 1
+
+        # molecule = run_psi4(molecule, run_scf=run_scf, run_mp2=run_mp2,
+        #                         run_cisd=run_cisd, run_ccsd=run_ccsd,
+        #                         run_fci=run_fci)
+            
+        # # Save molecule for future, so that regeneration is not required
+        # molecule.save()
+        # molecule.load()
         
         self.molecule = molecule
         self.name = self.name.replace(" ", "_")
@@ -381,7 +399,8 @@ class GenerateCircuit():
         self.geometry = geometry_from_pubchem(self.name)
         
     def set_basis(self, basis):
-        ''' Setter function '''
+        ''' Setter function 
+            bases can be: "sto-3g" "6-31g" "cc-pvtz" '''
         self.basis = basis
         
     def set_multiplicity(self, multiplicity):

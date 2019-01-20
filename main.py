@@ -3,25 +3,28 @@ from generateCircuit import GenerateCircuit
 import sys
 import time
 import array
+from openfermion.utils import count_qubits
 
 def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
     # Load appropraite molecule
     molecule = GenerateCircuit() 
     molecule.set_name(name)
     if(geometry == "pubchem"):
+        print(name)
         molecule.get_geometry_from_pubchem()
     else:
         molecule.set_geometry(geometry)
-    molecule.set_basis('sto-3g')
+    molecule.set_basis(basis)
     molecule.set_multiplicity(multiplicity)
     molecule.set_charge(charge)
     molecule.load_molecule() 
     molecule.create_hamiltonians()
+    n_qubits = count_qubits(molecule.fermion_hamiltonian)
     molecule.create_circuits(mapping)
     if(mapping == "BK"):
-        return molecule.bk_circuit
+        return [molecule.bk_circuit, n_qubits]
     elif(mapping == "JW"):
-        return molecule.jw_circuit
+        return [molecule.jw_circuit, n_qubits]
     else:
         sys.exit("Didn't understand mapping")
         
@@ -33,7 +36,7 @@ def getMoleculeData(name, geometry, basis, multiplicity, charge):
         molecule2.get_geometry_from_pubchem()
     else:
         molecule2.set_geometry(geometry)
-    molecule2.set_basis('sto-3g')
+    molecule2.set_basis(basis)
     molecule2.set_multiplicity(multiplicity)
     molecule2.set_charge(charge)
     molecule2.load_molecule() 
@@ -47,28 +50,36 @@ def getMoleculeData(name, geometry, basis, multiplicity, charge):
 def main():
     # Parse input arguements
     name = str(sys.argv[1])
-    basis = "sto-3g"
-    if(len(sys.argv) == 6):
+    if(len(sys.argv) == 7):
         geometry = str(sys.argv[2])
         multiplicity = int(sys.argv[3])
         charge = int(sys.argv[4])
         mapping = str(sys.argv[5])
-    elif((len(sys.argv)-5)%4 == 0):
+        basis = str(sys.argv[6])
+    elif((len(sys.argv)-6)%4 == 0):
         multiplicity = int(sys.argv[2])
         charge = int(sys.argv[3])
         mapping = str(sys.argv[4])
         geometry = list()
-        num_atoms = (len(sys.argv)-5)/4
+        num_atoms = (len(sys.argv)-6)/4
+        basis = str(sys.argv[len(sys.argv)-1])
         for index in range(num_atoms):
             atom_index = (index*4)+5
             atom = tuple((str(sys.argv[atom_index]), (float(sys.argv[atom_index+1]),float(sys.argv[atom_index+2]),float(sys.argv[atom_index+3]))))
             geometry.append(atom)
+    else:
+        sys.exit("Incorrect command line arguements")
         
     print(geometry)
+    print(basis)
     name = name.replace("_", " ")
     
+    qasm = [];
     start = time.time()
-    circuit = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
+    circuit, n_qubits = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
+    for line in circuit:
+        # print line
+        qasm.append(line);
     time_to_generate = time.time()-start
     
     name = name.replace(" ", "_")
@@ -79,7 +90,7 @@ def main():
         print("\nJORDAN-WIGNER MAPPING")
         
     start = time.time()
-    for line in circuit:
+    for line in qasm:
         # print(line);
         # print("In Circuit: ")
         # qcircuit.addGate(line);
@@ -125,16 +136,16 @@ def main():
     #     print("Time for Optimization of JW Mapping: {}".format(time_to_optimize))
         
         
-    name = name.replace("_", " ")
-    data = getMoleculeData(name, geometry, basis, multiplicity, charge)
-    name = name.replace(" ", "_")
+    # name = name.replace("_", " ")
+    # data = getMoleculeData(name, geometry, basis, multiplicity, charge)
+    # name = name.replace(" ", "_")
 
-    recorded_data = open('datav4.txt', "a") 
-    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13}\n"
-                     .format(name, mapping, data[0], 
+    # dataFileName = 'datav1_' + str(basis) + '.txt'
+    dataFileName = 'datav1_H3_varied_bases.txt'
+    recorded_data = open(dataFileName, "a") 
+    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n"
+                     .format(name, n_qubits, mapping,
                              basis, multiplicity, charge, 
-                             data[1], 
-                             data[2],
                              gate_count, CNOT_count, 
                              optimized_gate_count, optimized_CNOT_count,
                              time_to_generate, time_to_loop)
