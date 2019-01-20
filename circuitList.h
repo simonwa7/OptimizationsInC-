@@ -60,13 +60,20 @@ class CircuitList{
         CircuitList();
         ~CircuitList();
 
+        // add gate to the end of the circuit
         void add(Gate newGate);
+
+        // add gate to the end of the circuit and attempt to cancel this gate
         void addAndOptimize(Gate gate);
 
+        // print out circuit in order in QASM format
         void print();
+        // save circuit in QASM
         void saveQASM(string outputName);
+        // print length, numCNOT, optimizedLength, and optimizedNumCNOT
         void printLengths();
 
+        // getter functions
         unsigned long long getLength();
         unsigned long long getNumCNOT();
         unsigned long long getOptimizedLength();
@@ -78,18 +85,28 @@ class CircuitList{
         unsigned long long optimizedLength;
         unsigned long long optimizedNumCNOT;
 
+        // maximum qubit index in current circuit
         short int maxQubit;
+        // vector of pointers to qubitlists to represent the circuit
         std::vector<QubitList*> circuit;
 
+        // add qubits to the circuit
         void addQubits(int target, int control);
 
+        // check the previous gates in the qubitlist for possible cancellations
         Gate* checkPreviousGates(Gate gate);
+        // determine if two gates commute
         bool checkIfGatesCommute(Gate* gate1, Gate* gate2);
+        // determine if two gates cancel
         bool checkIfGatesCancel(Gate* gate1, Gate* gate2);
 
+        // removes nextGate while appropriately updating (and possibly
+        // cancelling) other gates
         void removeNext(Gate gate, Gate* nextGate);
+        // deletes the gate from the circuit
         void removeGate(Gate* gate);
 
+        // recursive helper functions for print() and saveQASM()
         void printBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents);
         void saveBeforeThisCNOT(Gate* CNOT, vector<Gate*> &currents, 
                                 ofstream &qasm);
