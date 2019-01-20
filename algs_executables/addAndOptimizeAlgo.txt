@@ -1,4 +1,4 @@
-Add And Optimize Algorithm Ouline
+Add And Optimize Algorithm Outline
 
 Basic Idea: attempt to add a gate, but first check if it cancels with any of the
 gates already in the circuit
