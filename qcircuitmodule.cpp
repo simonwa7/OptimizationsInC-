@@ -13,6 +13,7 @@ double getCoefficient(string line, unsigned int &i);
 
 CircuitList* CIRCUIT = new CircuitList;
 
+// conversion to add(gate) function in CircuitList
 static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
     const char* msg;
     int sts = 1;
@@ -36,6 +37,7 @@ static PyObject* qcircuit_addGate(PyObject* self, PyObject *args){
     return Py_BuildValue("i", sts);
 }
 
+// conversion to addAndOptimize(gate) function in CircuitList
 static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
     const char* msg;
     int sts = 1;
@@ -59,6 +61,7 @@ static PyObject* qcircuit_addAndOptimizeGate(PyObject* self, PyObject *args){
     return Py_BuildValue("i", sts);
 }
 
+// use either print or printLengths function to print to terminal
 static PyObject* qcircuit_show(PyObject* self, PyObject *args){
     const char* msg;
     int sts = 1;
@@ -75,12 +78,6 @@ static PyObject* qcircuit_show(PyObject* self, PyObject *args){
     }else if(command == "lengths"){
         CIRCUIT -> printLengths();
         sts = 0;
-//     }else if(command == "Number of gates"){
-//         cout << CIRCUIT -> getLength() << "\n";
-//         sts = 0;
-//     }else if(command == "Number of CNOT gates"){
-//         cout << CIRCUIT -> getNumCNOT() << "\n";
-//         sts = 0;
     }else{
         string error = "There was an exception raised while trying to use the ";
         error += "'show' fucntion.\n";
@@ -145,6 +142,7 @@ static PyObject* qcircuit_clear(PyObject* self, PyObject *args){
 //     return Py_BuildValue("i", sts);
 }
 
+// conversion to getter functions
 static PyObject* qcircuit_get(PyObject* self, PyObject *args){
     const char* msg;
     unsigned long long value = 0;
@@ -197,8 +195,10 @@ PyMODINIT_FUNC initqcircuit(void){
     
     PyModule_AddObject(m, "error", qcircuitError); 
 }
-/* NEEEEEED TO MODIFY GATE STRUCT*/
+
+
 Gate lineToGate(string line){ 
+    // create empty gate object
     Gate obj; 
     obj.gateType = 4;
     obj.targetQubit = -1;
@@ -208,38 +208,47 @@ Gate lineToGate(string line){
     obj.next = NULL;
     obj.before = NULL;
 
+    // string to store gate type while parsing
     string gateTypeString = ""; 
     
     unsigned int i = 0; 
     while(line[i] != ' '){ 
+        // until we find a space, add the character to the gatetype
         gateTypeString += line[i]; 
         ++i; 
     } 
+    // skip the space
     ++i; 
 
+    // if a hadamard, we just need the target Qubit
     if(gateTypeString == "H"){ 
         obj.gateType = 0; 
         string qubit = "";
+        // iterate through line to find the whole targetQubit
         while(i < line.length()){
             qubit += line[i];
             ++i;
         }
         obj.targetQubit = stoi(qubit);
     }else if(gateTypeString == "CNOT"){ 
+        // if CNOT, we need target and control qubits
         obj.gateType = 1; 
         string qubit = "";
+        // iterate through line to find the whole controlQubit
         while(line[i] != ' '){
             qubit += line[i];
             ++i;
         }
         obj.controlQubit = stoi(qubit);
         qubit = "";
+        // iterate through line to find the whole targetQubit
         while(i < line.length()){
             qubit += line[i];
             ++i;
         }
         obj.targetQubit = stoi(qubit);
     }else{ 
+        // last type is a rotation (at least from OpenFermion)
         if(gateTypeString == "Rx"){ 
             obj.gateType = 2; 
         }else if(gateTypeString == "Rz"){ 
