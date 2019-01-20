@@ -13,15 +13,21 @@ CircuitList::CircuitList(){
 
 CircuitList::~CircuitList(){
     // Destructor for CircuitList. Deletes all nodes still left in the circuit
+
+    // loop through each qubit
     for(int i=this->maxQubit; i >= 0; i--){
+        // get the head of the list
         Gate* current = this->circuit[i]->head;
         
+        // continue until current reaches the end
         while(current != NULL){
+            // update current before deleting node
             Gate* previous = current;
             current = current->next;
             delete previous;
         }
 
+        // delete pointer to qubitList
         delete circuit[i];
     }
 
@@ -56,6 +62,7 @@ void CircuitList::add(Gate gate){
     newGate->next = NULL;
     newGate->before = NULL;
 
+    // add more qubits to circuit if necessary
     addQubits(gate.targetQubit, gate.controlQubit);
 
     QubitList* qubit = this->circuit[gate.targetQubit];
@@ -101,7 +108,17 @@ void CircuitList::add(Gate gate){
 }
 
 void CircuitList::addQubits(int target, int control){    
-
+    /*
+    Purpose: add qubits to circuit if current number in circuit is smaller than
+            either the target or control qubits
+    ARGS: 
+        target: int
+        control: int
+    RETURNS:
+        NULL
+    TIME:
+        O(c) - limit on number of qubits should realistically keep this as O(c)
+    */
     while((control > this->maxQubit) or (target > this->maxQubit)){
         // cout << "Adding qubit: " << this->maxQubit+1 << endl;
         QubitList* newQubit = new QubitList;
@@ -114,21 +131,38 @@ void CircuitList::addQubits(int target, int control){
 }
 
 void CircuitList::addAndOptimize(Gate gate){
-    // cerr << "Attempting to add " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
+    /*
+    Purpose: add a gate to the end of the circuit, but first check if it cancels
+            with a previous gate. If cancellation occurs, adding the gate is
+            unnecessary and the corresponding gate is instead deleted. 
+    ARGS: 
+        Gate object
+    RETURNS:
+        NULL
+    TIME:
+        O(n) 
+    */
     addQubits(gate.targetQubit, gate.controlQubit);
     
+    // If not a CNOT gate
     if(gate.gateType != 1){
+
+        // try to find previous gate to cancel with (NULL if no such gate)
         Gate* gateToCancel = checkPreviousGates(gate);
 
         if(gateToCancel == NULL){
             add(gate);
         }else{
             removeNext(gate, gateToCancel);
+            // keep track of the unoptimized length
             ++this->length;
         }
     }else{
+        // gate is a CNOT gate, so much check both CNOT target and CNOT control
+        // check CNOT target gate
         Gate* gateToCancel1 = checkPreviousGates(gate);
 
+        // create and check CNOT control gate
         Gate alertGate;
         alertGate.gateType = 5;
         alertGate.coefficient = 0;
@@ -137,8 +171,11 @@ void CircuitList::addAndOptimize(Gate gate){
         alertGate.lastControl = NULL;
         Gate* gateToCancel2 = checkPreviousGates(alertGate);
 
+        // if both checks returned gates to control, we know they will point
+        // to the same gate, so we only need to cancel one
         if((gateToCancel1 != NULL) and (gateToCancel2 != NULL)){
             removeNext(gate, gateToCancel1);
+            // keep track of optimized gate counts
             ++this->length;
             ++this->numCNOT;
         }else{
@@ -147,49 +184,36 @@ void CircuitList::addAndOptimize(Gate gate){
     }
 }
 
-// void CircuitList::addAndOptimize(Gate gate){
-//     // cerr << "Attempting to add " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
-//     addQubits(gate.targetQubit, gate.controlQubit);
-//     Gate *current = this->circuit[gate.targetQubit]->tail;
-//     bool cancelled = false;
-
-//     while(current != NULL){
-//         if(checkIfGatesCancel(&gate, current)){
-//             removeNext(gate, current);
-//             cancelled = true;
-//             break;
-//         }else if(checkIfGatesCommute(&gate, current)){
-//             // cerr << "Gates commuting\n";
-//             current = current->before;
-//         }else{
-//             // cerr << "Gates not commuting\n";
-//             break;
-//         }
-//     }
-    
-//     if(!cancelled){
-//         add(gate);
-//     }else{
-//         ++this->length;
-//         if(gate.gateType == 1){
-//             ++this->numCNOT;
-//         }
-//     }
-// }
-
 Gate* CircuitList::checkPreviousGates(Gate gate){
+    /*
+    Purpose: iterate through the previous gates in the qubit's list of gates and
+            try to find a gate that will reduce to the identity. If the current
+            iteration is unsuccessful, proceed to the next gate as long as 
+            the gates pass the commutation rules.
+    ARGS: 
+        Gate object
+    RETURNS:
+        pointer to a gate to be cancelled (NULL if no such gate exists)
+    TIME:
+        O(n) 
+    */
+    // Get the pointer to the end of the qubit's list of gates
     Gate* current = this->circuit[gate.targetQubit]->tail;
 
+    // iterate from tail to head 
     while(current != NULL){
         if(checkIfGatesCancel(&gate, current)){
+            // if gates cancel, return pointer to matching gate
             return current;
         }else if(checkIfGatesCommute(&gate, current)){
+            // if the gates do not cancel, but commute, proceed to previous gate
             current = current->before;
         }else{
+            // gates neither cancel nor commute, so we must return NULL
             return NULL;
         }
     }
-
+    // no gate cancellation was found
     return NULL;
 }
 
@@ -200,11 +224,8 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         Return: boolean (true if gates commute, false otherwise)
         Time Complexity: O(c)
     */
-    // cerr << "Does " << GATETYPE[gate1->gateType] << gate1->coefficient << " " << gate1->controlQubit << " " << gate1->targetQubit << "\n";
-    // cerr << "Commute with " << GATETYPE[gate2->gateType] << gate2->coefficient << " " << gate2->controlQubit << " " << gate2->targetQubit << "\n";    
     // If they aren't CNOT gates, then since they must be acting on the same qubit, they cannot commute
     if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate2->gateType != 5) && (gate2->gateType != 5)){
-        // cerr << "false\n";
         return false;
     }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
         // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the target qubit for the CNOT
@@ -217,20 +238,17 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         return false;
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
-        // cerr << "false\n";
         return (gate1->targetQubit != gate2->controlQubit);
     }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
         // gates don't commute if both CNOT and have swapped control/targets
-        // cerr << "false\n";
         return false;
     }else if((gate1->gateType == 5) && (gate2->gateType == 1)){
-        // cerr << "false\n";
+        // two CNOT gates, but target and control are flipped
         return false;
     }
     // so here, at least one is a CNOT and the other is an Rx or H. In that case, 
-    // if they share any qubits, we should return false... which they must since
+    // if they share any qubits, we should return false, which they must since
     // they are on the same qubitList!
-    // cerr << "false\n";
     return false;
 }
 
@@ -254,12 +272,9 @@ void CircuitList::removeNext(Gate gate, Gate* nextGate){
         Return: void
         Time Complexity: O(c)
     */
-    // cerr << "Cancelling " << GATETYPE[gate.gateType] << gate.coefficient << " " << gate.controlQubit << " " << gate.targetQubit << "\n";
-    // cerr << "With " << GATETYPE[nextGate->gateType] << nextGate->coefficient << " " << nextGate->controlQubit << " " << nextGate->targetQubit << "\n";
     // Combine gates if gates are of type Rx or Rz
     if((nextGate->gateType == 2) || (nextGate->gateType == 3)){
         nextGate->coefficient += gate.coefficient;
-        // --this->optimizedLength;
         
         // keep rotations within 2pi
         if(nextGate->coefficient >= 6.2831853071795864){
@@ -293,39 +308,31 @@ void CircuitList::removeGate(Gate* gate){
         Return: void
         Time Complexity: O(c)
     */
-    // cerr << "Before nothing\n";
     QubitList* qubit = this->circuit[gate->targetQubit];
     if(qubit->head == NULL || gate == NULL){
         return;
     }
     
-    // cerr << "Before start\n";
     // Update start to next gate if gate to remove is the start
     if(qubit->head == gate){
-        // cerr << "Was start\n";
         qubit->head = gate->next;
     }
     
-    // cerr << "Before last\n";
     // Update last to previous gate if gate to remove is the last
     if(qubit->tail == gate){
-        // cerr << "Was last\n";
         qubit->tail = gate->before;
     }
     
-    // cerr << "Before reset next\n";
     // Update next gate's before pointer
     if(gate->next != NULL){
         gate->next->before = gate->before;
     }
     
-    // cerr << "Before reset last\n";
     // Update before gate's next pointer
     if(gate->before != NULL){
         gate->before->next = gate->next;
     }
     
-    // cerr << "Before memory release\n";
     // Free memory if gate exists
     if(gate != NULL){
         delete gate;
@@ -339,7 +346,6 @@ void CircuitList::print(){
         Return: void
         Time Complexity: O(g)
     */
-    // cout << "entered print" << endl;
     // This vector contains pointers to the next gate that needs to be
     // printed for each qubit
     vector<Gate *> currents;
