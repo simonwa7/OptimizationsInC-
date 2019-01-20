@@ -1,0 +1,13 @@
+Printing Algorithm Outline:
+
+1. Create a vector containing pointers to gates that are the next gate to be printed for each qubit
+
+2. Looping through this vector...
+	a. When the next gate is NULL (no more gates), stop and go to the next qubit
+	b. If the gate is a CNOT control or CNOT target gate...
+		- Get the pointer to the next gate for the other qubit in this CNOT
+		- While we are not at the corresponding CNOT gate...
+			1. Recurse to step b
+		- Print out the CNOT gate and update the other qubit's next gate
+	c. If not a CNOT, print out this gate
+	d. Go to the next gate in this qubit's list
