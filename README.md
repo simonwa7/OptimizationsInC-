@@ -93,6 +93,10 @@ While the first four values are self explanatory (gateType is stored as an unsig
 Now that we have defined and described the Gate data object, we come to the method of its storage in the program. As mentioned above, the Gate object contains pointers that allow for it to act as a node in a linked list. A trivial implementation (and in fact the first representation in this program's history) of a data structure representing a Quantum Circuit could be thought of as merely a singular linked list of each of the gates in order. While this is accurate, it dramatically increases the time complexity of the optimization algorithm. This is because gates need to be compared to the previous gates in the circuit to determine commutability and cancellation, yet it is understood that **single qubit gates** will only cancel if they act on the same qubit (similarly they will only not commute if they act on the same qubit). Hence, the QubitList Object and the inner circuit representation. In this program, the QubitList Object can be thought of as a qubit. It contains a pointer to the head and the tail of the linked list of gate objects that act on it (including CNOT gates). Then, for every qubit contained in the circuit, we have an associated QubitList instance that is stored in a vector (circuit). As mentioned prior, this current iteration of the program requires each CNOT gate to be represented twice. Once as a gate object in the target qubit's list and once in the control qubit's list. Below, a diagram of this structure is shown. 
 
 
+![data structure diagram](https://github.com/simonwa7/QuantumCircuitOpt-C/blob/parallel-lists/datastructures.jpg "Data Structures")
+
+Note: For clarity in the diagram, not every QubitList's tail is shown, as well as none of the lastControl pointers are labeled. 
+
 ## TODO:
   * Store CNOT gates as one gate object instead of two
   * Concurrent Optimization
