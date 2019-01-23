@@ -65,10 +65,36 @@ coordinates - float, cartesian coordinates in 3 dimensional space
 
 basis - string with the chosen basis set for molecular integral calculation. See Psi4 documentation for possible basis sets
 
-## Internal Representation
+## Internal Object Representation
+
+NOTE: Understanding these representations is not necessary for usage of this program. It is merely described for clarity and for future development. 
+
+In order to execute the logic and workflow described above, an internal syntax and structure for different varaibles used in the C++ module must be defined. Note, none of these data types are created until they enter the C++ module to maintain flexibility in the future applications of this plugin. Additionally, to allow for increased time and space efficiency, data structures are customized and linked together in different ways. These data structures and overall program structure will be described here. 
+
+
+**Gate Object**
+
+The most fundamental and core data structure used is the Gate Struct. As one would surmise, this Struct is the internal representation for a quantum gate and it contains all of the necessary information regarding the gate. It is defined in the circuitList.h file as follows.
+
+`struct Gate{
+    unsigned short int gateType;
+    double coefficient;
+    int targetQubit;
+    int controlQubit;
+    Gate* lastControl;
+    Gate* next;
+    Gate* before;
+};`
+
+While the first four values are self explanatory (gateType is stored as an unsigned short int as opposed to a string to reduce the space allocation), the three pointers could use clarification. The Gate pointers `next` and `before` are used to keep track of the preceeding and following Gates as one would typically image in a LinkedList. The `lastControl` Gate pointer is used to keep track of the memory address of the associated control or target instance of a CNOT gate. This is necessary because the implementation of these algorithms requires two gate objects for each CNOT gate (this is a simplification for development purposes, it may be possible to remove this requirement with further development). This rationale will be made clearer as we describe the rest of the data structures, yet it is important to note its occurence here. Additionally, it should be noted that not every value is necessary for every Gate - for example, a CNOT gate has no coefficient. While this is true, in order to simplify this program, these differences were not optimized for space complexity. In the future, this is an area where this implementation could be dramatically improved upon. 
+
+**QubitList Object and Circuit** 
+
+Now that we have defined and described the Gate data object, we come to the method of its storage in the program. As mentioned above, the Gate object contains pointers that allow for it to act as a node in a linked list. A trivial implementation (and in fact the first representation in this program's history) of a data structure representing a Quantum Circuit could be thought of as merely a singular linked list of each of the gates in order. While this is accurate, it dramatically increases the time complexity of the optimization algorithm. This is because gates need to be compared to the previous gates in the circuit to determine commutability and cancellation, yet it is understood that **single qubit gates** will only cancel if they act on the same qubit (similarly they will only not commute if they act on the same qubit). Hence, the QubitList Object and the inner circuit representation. In this program, the QubitList Object can be thought of as a qubit. It contains a pointer to the head and the tail of the linked list of gate objects that act on it (including CNOT gates). Then, for every qubit contained in the circuit, we have an associated QubitList instance that is stored in a vector (circuit). As mentioned prior, this current iteration of the program requires each CNOT gate to be represented twice. Once as a gate object in the target qubit's list and once in the control qubit's list. Below, a diagram of this structure is shown. 
 
 
 ## TODO:
+  * Store CNOT gates as one gate object instead of two
   * Concurrent Optimization
 
 
