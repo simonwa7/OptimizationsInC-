@@ -223,18 +223,29 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         Input Parameter: Two Gate Objects
         Return: boolean (true if gates commute, false otherwise)
         Time Complexity: O(c)
+
+        NOTE: 0 - Hadamard
+              1 - CNOT (targetQubit = target qubit)
+              2 - Rx 
+              3 - Rz
+              4 - CNOT (targetQubit = control qubit)
+
     */
-    // If they aren't CNOT gates, then since they must be acting on the same qubit, they cannot commute
-    if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate2->gateType != 5) && (gate2->gateType != 5)){
+    // If they aren't CNOT gates, then since they must be acting on the same 
+    // qubit, they cannot commute (if they are the same type they would have
+    // cancelled first)
+    if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate1->gateType != 5) && (gate2->gateType != 5)){
         return false;
     }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
-        // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the target qubit for the CNOT
+        // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the 
+        // target qubit for the CNOT
         return false;
     }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
-        // CNOT control qubit is same as Rz (gateType5 has switched contol and target)
+        // CNOT control qubit (target of the CNOT) is same as Rz 
+        // (gateType5 has switched contol and target)
         return (gate1->controlQubit != gate2->targetQubit);
     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
-        // same as before (Rz cannot act on control qubit)
+        // same as before (Rz cannot act on contol qubit)
         return false;
     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
         // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
