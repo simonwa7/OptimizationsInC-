@@ -134,6 +134,14 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
         sys.exit("Didn't understand mapping")
 
 
+def save_to_qasm(circuit):
+    file = open('test_qasm.txt', "w")
+    for gate in circuit:
+        file.write(gate)
+        file.write("\n")
+    file.close()
+
+
 def optimize_circuit(mapping, qasm):
     # used for debugging
     if(mapping == "BK"):
@@ -154,6 +162,8 @@ def optimize_circuit(mapping, qasm):
     CNOT_count = qcircuit.get("numCNOT")
     optimized_gate_count = qcircuit.get("optimizedLength")
     optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
+
+    qcircuit.save("save")
 
     return time_to_loop, gate_count, CNOT_count, optimized_gate_count, optimized_CNOT_count
 
@@ -186,13 +196,15 @@ if __name__ == '__main__':
     start = time.time()
     # circuit is a generator object to get the next gate in the circuit
     circuit, n_qubits = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
-    
+
     # in order to test the timing of the methods appropriately, we need to
     # load the entire circuit into RAM. Hence we loop through the returned
     # generator object so that no more time is needed to generate the next gate
     for line in circuit:
         qasm.append(line);
     time_to_generate = time.time()-start
+
+    save_to_qasm(qasm)
     
     name = name.replace(" ", "_")
 
