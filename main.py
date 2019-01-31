@@ -132,7 +132,31 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
         return [molecule.jw_circuit, n_qubits]
     else:
         sys.exit("Didn't understand mapping")
-   
+
+
+def optimize_circuit(mapping, qasm):
+    # used for debugging
+    if(mapping == "BK"):
+        print("BRAVYI-KITAEV MAPPING\n")
+    elif(mapping == "JW"):
+        print("\nJORDAN-WIGNER MAPPING")
+
+    # time the process of adding and optimizing 
+    start = time.time()
+    for line in qasm:
+        # add and optimize each line through the process. A negligible amount of
+        # time is spent translating from QASM to the gate object required by the
+        # circuitList class
+        qcircuit.addAndOptimizeGate(line)
+    time_to_loop = time.time()-start
+    
+    gate_count = qcircuit.get("length")
+    CNOT_count = qcircuit.get("numCNOT")
+    optimized_gate_count = qcircuit.get("optimizedLength")
+    optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
+
+    return time_to_loop, gate_count, CNOT_count, optimized_gate_count, optimized_CNOT_count
+
 
 def data_to_file(filename, name, n_qubits, mapping, basis, multiplicity, charge,
                  gate_count, CNOT_count, optimized_gate_count, 
@@ -171,26 +195,8 @@ if __name__ == '__main__':
     time_to_generate = time.time()-start
     
     name = name.replace(" ", "_")
-    
-    # used for debugging
-    if(mapping == "BK"):
-        print("BRAVYI-KITAEV MAPPING\n")
-    elif(mapping == "JW"):
-        print("\nJORDAN-WIGNER MAPPING")
-        
-    # time the process of adding and optimizing 
-    start = time.time()
-    for line in qasm:
-        # add and optimize each line through the process. A negligible amount of
-        # time is spent translating from QASM to the gate object required by the
-        # circuitList class
-        qcircuit.addAndOptimizeGate(line)
-    time_to_loop = time.time()-start
-    
-    gate_count = qcircuit.get("length")
-    CNOT_count = qcircuit.get("numCNOT")
-    optimized_gate_count = qcircuit.get("optimizedLength")
-    optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
+
+    time_to_loop, gate_count, CNOT_count, optimized_gate_count, optimized_CNOT_count = optimize_circuit(mapping, qasm)
 
     data_to_file('data.txt', name, n_qubits, mapping, basis, multiplicity, 
                  charge, gate_count, CNOT_count, optimized_gate_count, 
