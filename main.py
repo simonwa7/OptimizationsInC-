@@ -112,7 +112,7 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
     # Set variables
     molecule.set_name(name)
     if(geometry == "pubchem"):
-        print(name)
+        # print(name)
         molecule.get_geometry_from_pubchem()
     else:
         molecule.set_geometry(geometry)
@@ -144,10 +144,10 @@ def save_to_qasm(circuit):
 
 def optimize_circuit(mapping, qasm):
     # used for debugging
-    if(mapping == "BK"):
-        print("BRAVYI-KITAEV MAPPING\n")
-    elif(mapping == "JW"):
-        print("\nJORDAN-WIGNER MAPPING")
+    # if(mapping == "BK"):
+    #     print("BRAVYI-KITAEV MAPPING\n")
+    # elif(mapping == "JW"):
+    #     print("\nJORDAN-WIGNER MAPPING")
 
     # time the process of adding and optimizing 
     start = time.time()
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     geometry, basis, name, multiplicity, charge, mapping = parse_inputs(sys.argv)
     
     # used for debugging
-    print geometry, "\n", basis
+    # print geometry, "\n", basis
     name = name.replace("_", " ")
     
     # initialize empty array to store the QASM strings

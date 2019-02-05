@@ -216,52 +216,190 @@ Gate* CircuitList::checkPreviousGates(Gate gate){
     // no gate cancellation was found
     return NULL;
 }
+/*
+
+Commutation Rules:
+  - Hadamard with Hadamard -> should cancel, don't need to recheck
+  - Hadamard with CNOT (1) -> Andrew says NO
+  - Hadamard with CNOT (5) -> Andrew says NO
+  x Hadamard with Rx -> Andrew says probably not
+  - Hadamard with Rz -> Andrew says probably not 
+    Observation: Hadamards won't commute with anything under current rules
+
+    "CNOTs commute unless one's target is other's control"
+    CNOT with Rz -> Commute iff Rz target != CNOT target
+    
+  - CNOT(1) with Hadamard -> Andrew says NO
+  - CNOT(1) with CNOT(1) -> should cancel, don't need to recheck
+  - CNOT(1) with CNOT(5) -> Andrew says NO (current qubit is CNOT(1) target and CNOT(5) control)
+  + CNOT(1) with Rx -> Andrew says this should commute if a simple X rotation but labels it as false
+  - CNOT(1) with Rz -> Andrew says NO
+
+  - CNOT(5) with Hadamard -> Andrew says NO
+  - CNOT(5) with CNOT(1) -> Andrew says NO (current qubit is CNOT(5) control and CNOT(1) target)
+  - CNOT(5) with CNOT(5) -> should cancel, don't need to recheck
+  - CNOT(5) with Rx -> Andrew says this should commute if a simple X rotation but labels it as false
+ +* CNOT(5) with Rz -> Rz target == CNOT control, hence Rz target != CNOT target --> COMMUTES
+
+  x Rx with Hadamard -> Andrew says probably not
+  + Rx with CNOT(1) -> Andrew says this should commute if a simple X rotation but labels it as false
+  - Rx with CNOT(5) -> Andrew says this should commute if a simple X rotation but labels it as false
+  - Rx with Rx -> should cancel, don't need to recheck
+  - Rx with Rz -> Andrew says probably not
+
+  x Rz with Hadamard -> Andrew says probably not
+    Rz with CNOT(1) -> Andrew says NO
+  * Rz with CNOT(5) -> Rz target == CNOT control, hence Rz target != CNOT target --> COMMUTES
+  x Rz with Rx -> Andrew says probably not
+    Rz with Rz -> should cancel, don't need to recheck
+
+  * COMMUTES UNDER CURRENT RULES
+  - EXPERIMENTALLY NO
+  + EXPERIMENTALLY YES
+ ** Check this experimentally
+  x EXPERIMENTALLY MAYBE
+*/
 
 bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
-    /* Purpose: Check if two gates commute with one another based on defined 
-                commutation rules:
-        Input Parameter: Two Gate Objects
-        Return: boolean (true if gates commute, false otherwise)
-        Time Complexity: O(c)
-
-        NOTE: 0 - Hadamard
-              1 - CNOT (targetQubit = target qubit)
-              2 - Rx 
-              3 - Rz
-              4 - CNOT (targetQubit = control qubit)
-
-    */
-    // If they aren't CNOT gates, then since they must be acting on the same 
-    // qubit, they cannot commute (if they are the same type they would have
-    // cancelled first)
-    if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate1->gateType != 5) && (gate2->gateType != 5)){
-        return false;
-    }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
-        // With a CNOT and an Rz, they'll commute if the Rz doesn't act on the 
-        // target qubit for the CNOT
-        return false;
-    }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
-        // CNOT control qubit (target of the CNOT) is same as Rz 
-        // (gateType5 has switched contol and target)
-        return (gate1->controlQubit != gate2->targetQubit);
-    }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
-        // same as before (Rz cannot act on contol qubit)
-        return false;
-    }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
-        // same as before (CNOT and Rz - again flippd qubits for gatetype 5)
-        return (gate1->targetQubit != gate2->controlQubit);
-    }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
-        // gates don't commute if both CNOT and have swapped control/targets
-        return false;
-    }else if((gate1->gateType == 5) && (gate2->gateType == 1)){
-        // two CNOT gates, but target and control are flipped
-        return false;
+    if((gate1->gateType == 5) and (gate2->gateType == 3)){
+        return true;
     }
-    // so here, at least one is a CNOT and the other is an Rx or H. In that case, 
-    // if they share any qubits, we should return false, which they must since
-    // they are on the same qubitList!
+    if((gate1->gateType == 3) and (gate2->gateType == 5)){
+        return true;
+    }
+    // Experimentally YES to CNOT(1) with Rx
+    if((gate1->gateType == 1) and (gate2->gateType == 2)){
+        return true;
+    }
+    if((gate1->gateType == 2) and (gate2->gateType == 1)){
+        return true;
+    }
+    // Experimentally NO to CNOT(5) with Rx
+    // if((gate1->gateType == 5) and (gate2->gateType == 2)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 2) and (gate2->gateType == 5)){
+    //     return true;
+    // }
+
+    // Experimentally NO to Rx and Rz
+    // if((gate1->gateType == 3) and (gate2->gateType == 2)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 2) and (gate2->gateType == 3)){
+    //     return true;
+    // }
+
+    // Experimentally MAYBE to H and Rx... Did not add any cancellations
+    // if((gate1->gateType == 0) and (gate2->gateType == 2)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 2) and (gate2->gateType == 0)){
+    //     return true;
+    // }
+
+    // Experimentally NO to H and Rz
+    // if((gate1->gateType == 0) and (gate2->gateType == 3)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 3) and (gate2->gateType == 0)){
+    //     return true;
+    // }
+
+    // Experimentally NO to H and CNOT(1)
+    // if((gate1->gateType == 0) and (gate2->gateType == 1)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 1) and (gate2->gateType == 0)){
+    //     return true;
+    // }
+
+    // Experimentally NO to H and CNOT(5)
+    // if((gate1->gateType == 0) and (gate2->gateType == 5)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 5) and (gate2->gateType == 0)){
+    //     return true;
+    // }
+
+    // Experimentally NO to CNOT(5) and CNOT(1)
+    // if((gate1->gateType == 5) and (gate2->gateType == 1)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 1) and (gate2->gateType == 5)){
+    //     return true;
+    // }
+
+    // Experimentally NO to CNOT(1) and Rz
+    // if((gate1->gateType == 3) and (gate2->gateType == 1)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 1) and (gate2->gateType == 3)){
+    //     return true;
+    // }
+
+    if((gate1->gateType == 3) and (gate2->gateType == 1)){
+        return true;
+    }
+    if((gate1->gateType == 1) and (gate2->gateType == 3)){
+        return true;
+    }
+
+
     return false;
 }
+
+// bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
+//     /* Purpose: Check if two gates commute with one another based on defined 
+//                 commutation rules:
+//         Input Parameter: Two Gate Objects
+//         Return: boolean (true if gates commute, false otherwise)
+//         Time Complexity: O(c)
+
+//         NOTE: 0 - Hadamard
+//               1 - CNOT (targetQubit = target qubit)
+//               2 - Rx 
+//               3 - Rz
+//               4 - CNOT (targetQubit = control qubit)
+//         (gates are placed on targetQubit's qubitList)
+
+//     */
+//     // If neither gate is a CNOT, then since they must be acting on the same 
+//     // qubit, they cannot commute (if they are the same type they would have
+//     // cancelled first) 
+//     if((gate1->gateType != 1) && (gate2->gateType != 1) && (gate1->gateType != 5) && (gate2->gateType != 5)){
+//         return false;
+//     }else if((gate1->gateType == 1) && (gate2->gateType == 3)){
+//         // If a CNOT's target qubit is the same as the target of the Rz, then
+//         // the two gates will NOT commute
+//         // This is the case when it is CNOT (1) because this list is the CNOT
+//         // target
+//         return false;
+//     }else if((gate1->gateType == 3) && (gate2->gateType == 1)){
+//         // same as above
+//         return false;
+//     }else if((gate1->gateType == 5) && (gate2->gateType == 3)){
+//         // As mentioned above, these two gates WILL commute if the CNOT's target
+//         // is different than the Rz target. Since this is CNOT (5), we are on 
+//         // the control qubit list of the CNOT and the target list of the Rz.
+//         // Since the CNOT's target and control are assumed to be different, we
+//         // can be assured that these two gates will then commute.
+//         return true;
+//     }else if((gate1->gateType == 3) && (gate2->gateType == 5)){
+//         // same as above
+//         return true;
+//     }else if((gate1->gateType == 1) && (gate2->gateType == 5)){
+//         // gates don't commute if both CNOT and have swapped control/targets
+//         return false;
+//     }else if((gate1->gateType == 5) && (gate2->gateType == 1)){
+//         // two CNOT gates, but target and control are flipped
+//         return false;
+//     }
+//     // so here, at least one is a CNOT and the other is an Rx or H. In that case, 
+//     // if they share any qubits, we should return false, which they must since
+//     // they are on the same qubitList!
+//     return false;
+// }
 
 
 bool CircuitList::checkIfGatesCancel(Gate* gate1, Gate* gate2){
