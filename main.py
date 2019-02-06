@@ -172,7 +172,7 @@ def data_to_file(filename, name, n_qubits, mapping, basis, multiplicity, charge,
                  gate_count, CNOT_count, optimized_gate_count, 
                  optimized_CNOT_count, time_to_generate, time_to_loop):
     file = open(filename, "a")
-    file.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n"
+    file.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} "
              .format(name, n_qubits, mapping,
                      basis, multiplicity, charge, 
                      gate_count, CNOT_count, 

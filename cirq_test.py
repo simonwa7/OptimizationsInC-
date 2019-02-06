@@ -1,6 +1,7 @@
 import cirq
 import sys
 from cirq import Simulator
+import time
 
 import numpy
 
@@ -58,8 +59,15 @@ def simulate_qasm(qasm_circuit):
 
 
 def check_difference(circuit1, circuit2):
+    start = time.time()
     result1 = simulate_qasm(circuit1)
+    time1 = time.time()-start
+    start = time.time()
     result2 = simulate_qasm(circuit2)
+    time2 = time.time()-start
+    file = open("data.txt", "a")
+    file.write("{} {}\n".format(time1, time2))
+    file.close()
     total_diff = 0
     for result in zip(result1, result2):
         total_diff += numpy.linalg.norm(result[0]-result[1])
