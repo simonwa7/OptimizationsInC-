@@ -290,13 +290,15 @@ bool CircuitList::checkIfGatesCommute(Gate* gate1, Gate* gate2){
         return true;
     }
 
-    // Experimentally MAYBE to H and Rx... Did not add any cancellations
-    if((gate1->gateType == 0) and (gate2->gateType == 2)){
-        return true;
-    }
-    if((gate1->gateType == 2) and (gate2->gateType == 0)){
-        return true;
-    }
+    // Experimentally Unconfirmed to H and Rx... Did not add any cancellations
+    // Pretty sure H+Rx leads to Rz, but then begs the question of why no 
+    // H+Rz (which is experimentally NO)... leave out for now
+    // if((gate1->gateType == 0) and (gate2->gateType == 2)){
+    //     return true;
+    // }
+    // if((gate1->gateType == 2) and (gate2->gateType == 0)){
+    //     return true;
+    // }
 
     return false;
 }
