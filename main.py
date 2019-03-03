@@ -112,7 +112,7 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
     # Set variables
     molecule.set_name(name)
     if(geometry == "pubchem"):
-        print(name)
+        # print(name)
         molecule.get_geometry_from_pubchem()
     else:
         molecule.set_geometry(geometry)
@@ -132,37 +132,23 @@ def getCircuit(name, geometry, basis, multiplicity, charge, mapping):
         return [molecule.jw_circuit, n_qubits]
     else:
         sys.exit("Didn't understand mapping")
-   
 
-if __name__ == '__main__':
-    geometry, basis, name, multiplicity, charge, mapping = parse_inputs(sys.argv)
-    
+
+def save_to_qasm(circuit):
+    file = open('test_qasm.txt', "w")
+    for gate in circuit:
+        file.write(gate)
+        file.write("\n")
+    file.close()
+
+
+def optimize_circuit(mapping, qasm):
     # used for debugging
-    print geometry, "\n", basis
-    name = name.replace("_", " ")
-    
-    # initialize empty array to store the QASM strings
-    qasm = [];
-    # time the process of getting the circuit
-    start = time.time()
-    # circuit is a generator object to get the next gate in the circuit
-    circuit, n_qubits = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
-    
-    # in order to test the timing of the methods appropriately, we need to
-    # load the entire circuit into RAM. Hence we loop through the returned
-    # generator object so that no more time is needed to generate the next gate
-    for line in circuit:
-        qasm.append(line);
-    time_to_generate = time.time()-start
-    
-    name = name.replace(" ", "_")
-    
-    # used for debugging
-    if(mapping == "BK"):
-        print("BRAVYI-KITAEV MAPPING\n")
-    elif(mapping == "JW"):
-        print("\nJORDAN-WIGNER MAPPING")
-        
+    # if(mapping == "BK"):
+    #     print("BRAVYI-KITAEV MAPPING\n")
+    # elif(mapping == "JW"):
+    #     print("\nJORDAN-WIGNER MAPPING")
+
     # time the process of adding and optimizing 
     start = time.time()
     for line in qasm:
@@ -177,15 +163,53 @@ if __name__ == '__main__':
     optimized_gate_count = qcircuit.get("optimizedLength")
     optimized_CNOT_count = qcircuit.get("optimizedNumCNOT")
 
-    # record data and performance information
-    dataFileName = 'data.txt'
-    recorded_data = open(dataFileName, "a") 
-    recorded_data.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n"
-                     .format(name, n_qubits, mapping,
-                             basis, multiplicity, charge, 
-                             gate_count, CNOT_count, 
-                             optimized_gate_count, optimized_CNOT_count,
-                             time_to_generate, time_to_loop)
-                     )
-                     
-    recorded_data.close();
+    qcircuit.save("save")
+
+    return time_to_loop, gate_count, CNOT_count, optimized_gate_count, optimized_CNOT_count
+
+
+def data_to_file(filename, name, n_qubits, mapping, basis, multiplicity, charge,
+                 gate_count, CNOT_count, optimized_gate_count, 
+                 optimized_CNOT_count, time_to_generate, time_to_loop):
+    file = open(filename, "a")
+    file.write("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} "
+             .format(name, n_qubits, mapping,
+                     basis, multiplicity, charge, 
+                     gate_count, CNOT_count, 
+                     optimized_gate_count, optimized_CNOT_count,
+                     time_to_generate, time_to_loop)
+             )
+    file.close()
+
+
+
+if __name__ == '__main__':
+    geometry, basis, name, multiplicity, charge, mapping = parse_inputs(sys.argv)
+    
+    # used for debugging
+    # print geometry, "\n", basis
+    name = name.replace("_", " ")
+    
+    # initialize empty array to store the QASM strings
+    qasm = [];
+    # time the process of getting the circuit
+    start = time.time()
+    # circuit is a generator object to get the next gate in the circuit
+    circuit, n_qubits = getCircuit(name, geometry, basis, multiplicity, charge, mapping)
+
+    # in order to test the timing of the methods appropriately, we need to
+    # load the entire circuit into RAM. Hence we loop through the returned
+    # generator object so that no more time is needed to generate the next gate
+    for line in circuit:
+        qasm.append(line);
+    time_to_generate = time.time()-start
+
+    save_to_qasm(qasm)
+    
+    name = name.replace(" ", "_")
+
+    time_to_loop, gate_count, CNOT_count, optimized_gate_count, optimized_CNOT_count = optimize_circuit(mapping, qasm)
+
+    data_to_file('data.txt', name, n_qubits, mapping, basis, multiplicity, 
+                 charge, gate_count, CNOT_count, optimized_gate_count, 
+                 optimized_CNOT_count, time_to_generate, time_to_loop)
